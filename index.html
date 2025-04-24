@@ -377,7 +377,11 @@ if (SpeechRecognition) {
     const audioPlayer = new Audio(); // Create an audio player instance
 
     // Send text to the TTS backend
-    fetch('http://127.0.0.1:8080/speak', {
+    function speakAmharic(text) {
+    const audioPlayer = new Audio(); // Create an audio player instance
+
+    // Send text to the TTS backend
+    fetch('https://eb5f6d1b-4335-40ad-8d47-6b4a18b60379-00-3l27tplu3r7tm.picard.replit.dev/speak', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -399,6 +403,7 @@ if (SpeechRecognition) {
         console.error('Error with TTS:', error);
     });
 }
+
 
 
     
