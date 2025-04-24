@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA</title>
+
+    
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=TkMLqU0K"></script>
+    <style>
+        body {
+            font-family: 'Arial Black', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #222;
+            padding: 10px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .navbar img {
+            height: 30px;
+        }
+        .navbar a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .navbar .menu-right {
+            display: flex;
+            align-items: center;
+        }
+        .navbar .menu-right a:hover {
+            color: #fff;
+        }
+        .container {
+            
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: #111;
+            margin-top: 60px;
+        }
+        .lol {
+            font-size: 30px;
+            font-weight: bold;
+            background: linear-gradient(90deg, blue, red);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .input-container {
+            
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .input-field:hover{
+            border:1px solid aqua;
+            transition: 0.5s;
+        }
+        .input-container button {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background-color: blue;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-container button:hover {
+            background-color: #333;
+            transform: scale(1.1); 
+        }
+        .input-container button:active {
+            transform: scale(0.9); 
+        }
+        .input-container button.recording {
+            background-color: green;
+        }
+        .messages {
+            background-image: url("../res/bg.png");
+            background-size: cover;
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #111;
+            border: none; 
+        }
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+            max-width: 80%;
+            color: white;
+            position: relative;
+            word-wrap: break-word;
+            opacity: 0; 
+            animation: fadeIn 0.5s forwards; 
+        }
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(90deg, blue, red);
+        }
+        .ai-message {
+            align-self: flex-start;
+            background-color: rgba(224, 224, 224, 0.9);
+            color: black;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 100px;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            margin-right: auto;
+            
+        }
+        .modal-content {
+            background-color: #333;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            text-align: center;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .input-field {
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            margin-right: 10px;
+            flex-grow: 1;
+            resize: vertical; /* Allow users to resize the textarea vertically */
+            min-height: 50px; /* Minimum height for the textarea */
+            max-height: 200px; /* Maximum height for the textarea */
+            overflow-y: auto; /* Enable scrolling if content exceeds max-height */
+        }
+
+        
+
+     
+
+
+    
+        #connect-ble{
+            position: relative;
+            left: 0px;
+            bottom: 0px;
+            width:250px;
+            background-color: blue;
+            color: white;
+            box-shadow: #000;
+            border: none;
+            border-radius: 6px;
+            transition: 0.5s;
+        }
+        #connect-ble:hover{
+            background-color: #fff;
+            color:#000 ;
+            transition: 0.5s;
+        }
+
+    </style>
+</head>
+<body>
+
+ 
+<div class="navbar">
+    
+    <div class="menu-left">
+        <a id="aboutLink" class="">   About</a>
+        <a id="howToUseLink" >How to Use</a>
+        <a href="home.html" class="sidebar-link">   Home</a>
+        <a href="robocontrol.html" class="sidebar-link">  Control</a>
+        
+    </div>
+</div>
+
+
+
+<div id="aboutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeAbout">&times;</span>
+        <h2>About</h2>
+        <p style="color: #aaa;">Developer: Yaffet Million<br>
+           Email: xthunder308@gmail.com
+        </p>
+    </div>
+</div>
+
+<div id="howToUseModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeHowToUse">&times;</span>
+        <h2>How to Use</h2>
+        <p style="color: #aaa;">Click the speak button and talk in Amharic to get a response from the AI! You can also type in the input field.</p>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="lol">a.v.a</h2>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-container">
+        <textarea id="user-input" class="input-field" placeholder="Type your message here..." aria-label="Type your message here"></textarea>
+        <button id="send-btn">&#8593;</button> 
+        <button id="start-btn">&#x1F3A4;</button> 
+    </div>
+    <button id="connect-ble">Connect</button>
+
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@google/generative-ai": "https://esm.run/@google/generative-ai"
+    }
+  }
+</script>
+
+<script type="module">
+    let bleDevice;
+    let servoCharacteristic;
+    document.getElementById("connect-ble").addEventListener("click", connectBLE);
+
+
+    async function connectBLE() {
+        try {
+            bleDevice = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: ["12345678-1234-1234-1234-123456789abc"]
+            });
+
+            const server = await bleDevice.gatt.connect();
+            const service = await server.getPrimaryService("12345678-1234-1234-1234-123456789abc");
+            servoCharacteristic = await service.getCharacteristic("87654321-4321-4321-4321-9876543210ab");
+            console.log("BLE Connected!");
+        } catch (error) {
+            console.error("BLE Connection Error:", error);
+        }
+    }
+
+    async function waveEmote() {
+        if (servoCharacteristic) {
+            await servoCharacteristic.writeValue(new Uint8Array([6])); // Command 1 for wave
+            console.log("Wave emote triggered via BLE!");
+        } else {
+            console.error("Servo characteristic not available. Connect BLE first.");
+        }
+    }
+    async function nodEmote() {
+        if (servoCharacteristic) {
+            await servoCharacteristic.writeValue(new Uint8Array([7])); // Command 1 for wave
+            console.log("nod emote triggered via BLE!");
+        } else {
+            console.error("Servo characteristic not available. Connect BLE first.");
+        }
+    }
+
+
+    import { GoogleGenerativeAI } from "@google/generative-ai";
+
+    const API_KEY = "AIzaSyCtITZAu8oYwJwa9PfGXLf_O4YMCGvf3OA"; 
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'am-ET';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+} else {
+    alert("Speech recognition is not supported on this browser.");
+}
+
+    
+       
+    async function generateContent(prompt) {
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+    try {
+        const result = await model.generateContent(prompt);
+        const response = result.response.text();
+
+        displayMessage(response, 'ai');
+
+        // Check if "hello" is in the AI's response to trigger the wave emote
+        if (response.toLowerCase().includes("hello") || response.toLowerCase().includes("ሰላም")|| response.toLowerCase().includes("hi") || response.toLowerCase().includes("hola") || response.toLowerCase().includes("bonjour")){
+            waveEmote();
+        }
+        else if (response.toLowerCase().includes("no")|| response.toLowerCase().includes("አይደለም") ){
+            nodEmote();
+        }
+
+        speakAmharic(response);
+    } catch (error) {
+        console.error('Error generating content:', error);
+        displayMessage('Failed to get response from AI.', 'ai');
+    }
+}
+
+
+    function displayMessage(text, sender) {
+        const messagesDiv = document.getElementById('messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+
+        
+        const senderLabel = document.createElement('strong');
+        senderLabel.textContent = sender === 'user' ? 'You: ' : 'AVA: ';
+        messageDiv.appendChild(senderLabel);
+
+    
+        messageDiv.appendChild(document.createTextNode(text));
+        messagesDiv.appendChild(messageDiv);
+        
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        
+        messageDiv.style.opacity = 0;
+        messageDiv.animate([{ opacity: 0 }, { opacity: 1 }], {
+            duration: 500,
+            fill: 'forwards'
+        });
+    }
+
+    
+    function speakAmharic(text) {
+    const audioPlayer = new Audio(); // Create an audio player instance
+
+    // Send text to the TTS backend
+    fetch('http://127.0.0.1:8080/speak', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: text })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to generate TTS');
+        }
+        return response.blob(); // Get the audio blob
+    })
+    .then(audioBlob => {
+        const audioURL = URL.createObjectURL(audioBlob); // Create a URL for the blob
+        audioPlayer.src = audioURL; // Set it as the audio player's source
+        audioPlayer.play(); // Play the audio
+    })
+    .catch(error => {
+        console.error('Error with TTS:', error);
+    });
+}
+
+
+    
+    
+    document.getElementById('send-btn').addEventListener('click', function () {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value;
+
+    if (message) {
+        displayMessage(message, 'user');
+        generateContent(message);
+        userInput.value = ''; // Clear the textarea after sending
+    }
+});
+
+
+
+navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(() => console.log("Microphone access granted"))
+    .catch(error => console.error("Microphone access denied:", error));
+
+
+
+document.getElementById('start-btn').addEventListener('click', function () {
+    if (recognition) {
+        try {
+            recognition.start();
+        } catch (error) {
+            console.error("Speech recognition error:", error);
+            alert("Please grant microphone permission.");
+        }
+    } else {
+        alert("Speech recognition is not supported on this device.");
+    }
+});
+
+
+    
+    recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript.toLowerCase();
+    displayMessage(transcript, 'user');
+    generateContent(transcript);
+
+    // Trigger wave emote if user says "hello"
+    if (transcript.includes("hello")) {
+        waveEmote();
+    }
+};
+
+
+    
+    document.getElementById('aboutLink').onclick = function() {
+        document.getElementById('aboutModal').style.display = 'block';
+    };
+    document.getElementById('howToUseLink').onclick = function() {
+        document.getElementById('howToUseModal').style.display = 'block';
+    };
+
+    
+    document.getElementById('closeAbout').onclick = function() {
+        document.getElementById('aboutModal').style.display = 'none';
+    };
+    document.getElementById('closeHowToUse').onclick = function() {
+        document.getElementById('howToUseModal').style.display = 'none';
+    };
+
+    
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('aboutModal') || event.target === document.getElementById('howToUseModal')) {
+            event.target.style.display = 'none';
+        }
+    };
+        
+
+
+</script>
+</body>
+</html>
