@@ -375,11 +375,11 @@ if (SpeechRecognition) {
     
     
 
-    function speakAmharic(text) {
+ function speakAmharic(text) {
     const audioPlayer = new Audio(); // Create an audio player instance
 
     // Send text to the TTS backend
-    fetch('https://2244fe2a-9d1c-4af8-a9c4-cb4f01dbafcb-00-rhxxb2jncrb0.spock.replit.dev/', {
+    fetch('https://2244fe2a-9d1c-4af8-a9c4-cb4f01dbafcb-00-rhxxb2jncrb0.spock.replit.dev/speak', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -401,6 +401,7 @@ if (SpeechRecognition) {
         console.error('Error with TTS:', error);
     });
 }
+
 
 
 
@@ -477,6 +478,7 @@ document.getElementById('start-btn').addEventListener('click', function () {
 </script>
 </body>
 </html>
+
 
 
 
