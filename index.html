@@ -430,7 +430,7 @@ function draw(){
         n.x+=n.dx; n.y+=n.dy;
         if(n.x<0||n.x>w) n.dx*=-1;
         if(n.y<0||n.y>h) n.dy*=-1;
-        ctx.fillStyle='rgba(255,0,155,0.6)';
+        ctx.fillStyle='rgba(255,0,255,0.6)';
         ctx.beginPath(); ctx.arc(n.x,n.y,2,0,Math.PI*2); ctx.fill();
         for(let j=i+1;j<nodes.length;j++){
             const m=nodes[j];
@@ -448,3 +448,4 @@ draw();
 
 </body>
 </html>
+
