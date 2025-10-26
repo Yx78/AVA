@@ -5,234 +5,249 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AVA</title>
 <script src="https://code.responsivevoice.org/responsivevoice.js?key=TkMLqU0K"></script>
-
+<script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
 <style>
-    /* ===== CSS VARIABLES FOR THEMING ===== */
-    :root{
-        --bg-1: #020202;
-        --bg-2: #0b0b0b;
-        --panel: rgba(20,20,20,0.8);
-        --text-primary: #e6f7f7;
-        --muted: #bbb;
-        --accent-1: #00ffff;
-        --accent-2: #ff00ff;
-        --user-bubble-start: #00ffff;
-        --user-bubble-end: #007bff;
-        --ai-bubble: rgba(255,255,255,0.1);
-        --glass: rgba(255,255,255,0.03);
-        --shadow: rgba(0,255,255,0.12);
-        --send-bg: linear-gradient(90deg, var(--accent-1), #007bff);
-    }
+/* ===== CSS VARIABLES FOR THEMING ===== */
+:root{
+    --bg-1: #020202;
+    --bg-2: #0b0b0b;
+    --panel: rgba(20,20,20,0.8);
+    --text-primary: #e6f7f7;
+    --muted: #bbb;
+    --accent-1: #00ffff;
+    --accent-2: #ff00ff;
+    --user-bubble-start: #00ffff;
+    --user-bubble-end: #007bff;
+    --ai-bubble: rgba(255,255,255,0.1);
+    --glass: rgba(255,255,255,0.03);
+    --shadow: rgba(0,255,255,0.12);
+    --send-bg: linear-gradient(90deg, var(--accent-1), #007bff);
+}
 
-    [data-theme="light"]{
-        --bg-1: #f5f7fb;
-        --bg-2: #e9eef7;
-        --panel: rgba(255,255,255,0.9);
-        --text-primary: #0b1630;
-        --muted: #4b5563;
-        --accent-1: #0066ff;
-        --accent-2: #ff3366;
-        --user-bubble-start: #4f8bff;
-        --user-bubble-end: #88baff;
-        --ai-bubble: rgba(10,25,45,0.06);
-        --glass: rgba(0,0,0,0.03);
-        --shadow: rgba(0,102,255,0.12);
-        --send-bg: linear-gradient(90deg, var(--accent-1), #2b8cff);
-    }
+[data-theme="light"]{
+    --bg-1: #f5f7fb;
+    --bg-2: #e9eef7;
+    --panel: rgba(255,255,255,0.9);
+    --text-primary: #0b1630;
+    --muted: #4b5563;
+    --accent-1: #0066ff;
+    --accent-2: #ff3366;
+    --user-bubble-start: #4f8bff;
+    --user-bubble-end: #88baff;
+    --ai-bubble: rgba(10,25,45,0.06);
+    --glass: rgba(0,0,0,0.03);
+    --shadow: rgba(0,102,255,0.12);
+    --send-bg: linear-gradient(90deg, var(--accent-1), #2b8cff);
+}
 
-    /* Smooth animated transitions for theme changes */
-    * {
-        box-sizing: border-box;
-        transition: background-color 400ms ease, color 400ms ease, border-color 350ms ease, box-shadow 350ms ease;
-    }
+/* Smooth transitions */
+* {
+    box-sizing: border-box;
+    transition: background-color 400ms ease, color 400ms ease, border-color 350ms ease, box-shadow 350ms ease;
+}
 
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: "Poppins", Arial, sans-serif;
-        background: radial-gradient(circle at top left, var(--bg-1), var(--bg-2));
-        color: var(--text-primary);
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", Arial, sans-serif;
+    background: radial-gradient(circle at top left, var(--bg-1), var(--bg-2));
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--panel);
-        backdrop-filter: blur(10px);
-        padding: 12px 18px;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        box-shadow: 0 0 15px var(--shadow);
-        z-index: 10;
-    }
-    .navbar a {
-        text-decoration: none;
-        color: var(--muted);
-        margin: 0 12px;
-        font-weight: 500;
-        transition: 0.3s;
-    }
-    .navbar a:hover { color: var(--accent-1); }
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    padding: 12px 18px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-shadow: 0 0 15px var(--shadow);
+    z-index: 10;
+}
 
-    /* THEME TOGGLE BUTTON */
-    .theme-toggle {
-        width: 48px;
-        height: 28px;
-        border-radius: 30px;
-        background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
-        display: inline-flex;
-        align-items: center;
-        padding: 3px;
-        cursor: pointer;
-        position: relative;
-        border: 1px solid rgba(255,255,255,0.06);
-        transition: transform 250ms ease;
-    }
-    .theme-toggle:hover { transform: scale(1.05); }
-    .toggle-knob {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: linear-gradient(180deg, #fff, #e6e6e6);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        transition: transform 350ms cubic-bezier(.2,.9,.2,1), background 350ms;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-    }
-    [data-theme="dark"] .toggle-knob { background: linear-gradient(180deg, #f8f8f8, #e6e6e6); }
-    [data-theme="light"] .toggle-knob { transform: translateX(20px); }
+.navbar a {
+    text-decoration: none;
+    color: var(--muted);
+    margin: 0 12px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+.navbar a:hover { color: var(--accent-1); }
 
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        flex: 1;
-        padding: 80px 20px 20px;
-        background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04));
-    }
+/* Theme toggle button */
+.theme-toggle {
+    width: 48px;
+    height: 28px;
+    border-radius: 30px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: transform 250ms ease;
+}
+.theme-toggle:hover { transform: scale(1.05); }
 
-    .lol {
-        font-size: 40px;
-        font-weight: 800;
-        background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 15px;
-        animation: glowPulse 2s infinite alternate;
-    }
+.toggle-knob {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #fff, #e6e6e6);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 350ms cubic-bezier(.2,.9,.2,1), background 350ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
 
-    @keyframes glowPulse {
-        from { text-shadow: 0 0 8px var(--accent-1); }
-        to { text-shadow: 0 0 20px var(--accent-2); }
-    }
+/* Container */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    padding: 80px 20px 20px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04));
+}
 
-    .messages {
-        background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0));
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 15px;
-        width: 100%;
-        max-width: 900px;
-        height: 55vh;
-        overflow-y: auto;
-        padding: 18px;
-        box-shadow: inset 0 0 20px var(--shadow);
-        display: flex;
-        flex-direction: column;
-    }
+.lol {
+    font-size: 40px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    animation: glowPulse 2s infinite alternate;
+}
 
-    .message {
-        margin: 10px 0;
-        padding: 12px 18px;
-        border-radius: 18px;
-        line-height: 1.4em;
-        animation: fadeIn 0.28s ease forwards;
-        word-wrap: break-word;
-        max-width: 72%;
-        color: var(--text-primary);
-    }
+@keyframes glowPulse {
+    from { text-shadow: 0 0 8px var(--accent-1); }
+    to { text-shadow: 0 0 20px var(--accent-2); }
+}
 
-    .user-message {
-        background: linear-gradient(90deg, var(--user-bubble-start), var(--user-bubble-end));
-        align-self: flex-end;
-        color: #001022;
-    }
+.messages {
+    background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 900px;
+    height: 55vh;
+    overflow-y: auto;
+    padding: 18px;
+    box-shadow: inset 0 0 20px var(--shadow);
+    display: flex;
+    flex-direction: column;
+}
 
-    .ai-message {
-        background: var(--ai-bubble);
-        color: var(--text-primary);
-        align-self: flex-start;
-    }
+.message {
+    margin: 10px 0;
+    padding: 12px 18px;
+    border-radius: 18px;
+    line-height: 1.4em;
+    animation: fadeIn 0.28s ease forwards;
+    word-wrap: break-word;
+    max-width: 72%;
+    color: var(--text-primary);
+}
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
+.user-message {
+    background: linear-gradient(90deg, var(--user-bubble-start), var(--user-bubble-end));
+    align-self: flex-end;
+    color: #001022;
+}
 
-    .input-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 900px;
-        margin-top: 15px;
-        gap: 10px;
-    }
+.ai-message {
+    background: var(--ai-bubble);
+    color: var(--text-primary);
+    align-self: flex-start;
+}
 
-    .input-field {
-        flex-grow: 1;
-        background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 25px;
-        color: var(--text-primary);
-        padding: 12px 18px;
-        font-size: 16px;
-        resize: none;
-        min-height: 45px;
-        max-height: 200px;
-    }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
 
-    .input-field:focus {
-        border-color: var(--accent-1);
-        outline: none;
-        box-shadow: 0 0 12px rgba(0,0,0,0.15);
-    }
+.input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 15px;
+    gap: 10px;
+}
 
-    .input-container button {
-        width: 56px;
-        height: 56px;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 22px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 220ms ease, box-shadow 220ms ease;
-    }
+.input-field {
+    flex-grow: 1;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 25px;
+    color: var(--text-primary);
+    padding: 12px 18px;
+    font-size: 16px;
+    resize: none;
+    min-height: 45px;
+    max-height: 200px;
+}
 
-    #send-btn { background: var(--send-bg); color: #fff; }
-    #start-btn { background: linear-gradient(90deg, var(--accent-2), #ff0077); color: #fff; }
+.input-field:focus {
+    border-color: var(--accent-1);
+    outline: none;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+}
 
-    .input-container button:hover { transform: scale(1.07); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.input-container button {
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+}
 
-    #connect-ble { margin-top: 18px; background: linear-gradient(90deg, #007bff, var(--accent-1)); color: #fff; font-weight: 600; border: none; border-radius: 10px; padding: 12px 36px; cursor: pointer; }
-    #connect-ble:hover { transform: scale(1.04); }
+#send-btn { background: var(--send-bg); color: #fff; }
+#start-btn { background: linear-gradient(90deg, var(--accent-2), #ff0077); color: #fff; }
 
-    .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); }
-    .modal-content { background: var(--panel); border: 1px solid rgba(255,255,255,0.06); margin: 10% auto; padding: 25px; border-radius: 15px; width: 60%; color: var(--text-primary); box-shadow: 0 0 20px var(--shadow); text-align: center; max-width: 500px; }
-    .modal-content h2 { color: var(--accent-1); margin-bottom: 10px; }
-    .close { float: right; font-size: 26px; color: var(--muted); cursor: pointer; }
-    .close:hover { color: var(--text-primary); }
+.input-container button:hover { transform: scale(1.07); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
 
-    /* Responsive tweaks */
-    @media (max-width: 720px){ .messages { height: 60vh; } .lol { font-size: 30px; } .container{ padding: 90px 12px 18px } }
+#connect-ble { margin-top: 18px; background: linear-gradient(90deg, #007bff, var(--accent-1)); color: #fff; font-weight: 600; border: none; border-radius: 10px; padding: 12px 36px; cursor: pointer; }
+#connect-ble:hover { transform: scale(1.04); }
+
+.modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); }
+.modal-content { background: var(--panel); border: 1px solid rgba(255,255,255,0.06); margin: 10% auto; padding: 25px; border-radius: 15px; width: 60%; color: var(--text-primary); box-shadow: 0 0 20px var(--shadow); text-align: center; max-width: 500px; }
+.modal-content h2 { color: var(--accent-1); margin-bottom: 10px; }
+.close { float: right; font-size: 26px; color: var(--muted); cursor: pointer; }
+.close:hover { color: var(--text-primary); }
+
+@media (max-width: 720px){
+    .messages { height: 60vh; }
+    .lol { font-size: 30px; }
+    .container{ padding: 90px 12px 18px }
+}
+
+/* Canvas network background */
+#network {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -4;
+    pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -244,9 +259,7 @@
         <a href="home.html">Home</a>
         <a href="robocontrol.html">Control</a>
     </div>
-
     <div style="display:flex;align-items:center;gap:12px;">
-        <!-- Theme toggle -->
         <div id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
             <div class="toggle-knob" id="toggleKnob">🌙</div>
         </div>
@@ -269,271 +282,169 @@
     </div>
 </div>
 
+
+
 <div class="container">
     <h2 class="lol">A.V.A</h2>
-
     <div class="messages" id="messages"></div>
-
     <div class="input-container">
         <textarea id="user-input" class="input-field" placeholder="Type your message here..." aria-label="Type your message here"></textarea>
         <button id="send-btn">&#8593;</button>
         <button id="start-btn">&#x1F3A4;</button>
+		<canvas id="network"></canvas>
     </div>
     <button id="connect-ble">Connect Robot</button>
 </div>
 
-<!-- THEME HANDLER SCRIPT (keeps original main script untouched) -->
-<script>
-(function(){
-    const root = document.documentElement;
-    const toggle = document.getElementById('themeToggle');
-    const knob = document.getElementById('toggleKnob');
-    const stored = localStorage.getItem('ava-theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let theme = stored || (prefersDark ? 'dark' : 'light');
-
-    function applyTheme(t){
-        document.documentElement.setAttribute('data-theme', t);
-        if(t === 'light'){
-            knob.textContent = '☀️';
-            knob.style.transform = 'translateX(20px)';
-        } else {
-            knob.textContent = '🌙';
-            knob.style.transform = 'translateX(0)';
-        }
-    }
-
-    applyTheme(theme);
-
-    toggle.addEventListener('click', ()=>{
-        theme = (document.documentElement.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
-        localStorage.setItem('ava-theme', theme);
-        // subtle animation
-        knob.style.transition = 'transform 350ms cubic-bezier(.2,.9,.2,1), opacity 200ms';
-        knob.style.opacity = '0.6';
-        setTimeout(()=>{ knob.style.opacity = '1'; applyTheme(theme); }, 80);
-    });
-})();
-</script>
-
-<!-- ===== SCRIPT (UNCHANGED) ===== -->
 <script type="importmap">
-  {
-    "imports": {
-      "@google/generative-ai": "https://esm.run/@google/generative-ai"
-    }
-  }
+{
+  "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" }
+}
 </script>
 
 <script type="module">
-    // === your full original JS logic stays identical ===
-    let bleDevice;
-    let servoCharacteristic;
-    document.getElementById("connect-ble").addEventListener("click", connectBLE);
+// ======================= THEME =======================
+const toggle = document.getElementById('themeToggle');
+const knob = document.getElementById('toggleKnob');
+let theme = localStorage.getItem('ava-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
 
-    async function connectBLE() {
-        try {
-            bleDevice = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: ["12345678-1234-1234-1234-123456789abc"]
-            });
-
-            const server = await bleDevice.gatt.connect();
-            const service = await server.getPrimaryService("12345678-1234-1234-1234-123456789abc");
-            servoCharacteristic = await service.getCharacteristic("87654321-4321-4321-4321-9876543210ab");
-            console.log("BLE Connected!");
-        } catch (error) {
-            console.error("BLE Connection Error:", error);
-        }
-    }
-
-    async function waveEmote() {
-        if (servoCharacteristic) {
-            await servoCharacteristic.writeValue(new Uint8Array([6])); // Command 1 for wave
-            console.log("Wave emote triggered via BLE!");
-        } else {
-            console.error("Servo characteristic not available. Connect BLE first.");
-        }
-    }
-    async function nodEmote() {
-        if (servoCharacteristic) {
-            await servoCharacteristic.writeValue(new Uint8Array([7])); // Command 1 for wave
-            console.log("nod emote triggered via BLE!");
-        } else {
-            console.error("Servo characteristic not available. Connect BLE first.");
-        }
-    }
-
-
-    import { GoogleGenerativeAI } from "@google/generative-ai";
-
-    const API_KEY = "AIzaSyDYz7uz6p10IewK16YYKsnLbWewhewEiSg";
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition;
-
-if (SpeechRecognition) {
-    recognition = new SpeechRecognition();
-    recognition.lang = 'am-ET';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-} else {
-    alert("Speech recognition is not supported on this browser.");
+function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    knob.textContent = t==='light' ? '☀️':'🌙';
+    knob.style.transform = t==='light' ? 'translateX(20px)' : 'translateX(0)';
+    
 }
-
-
-
-    async function generateContent(prompt) {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    try {
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
-
-        displayMessage(response, 'ai');
-
-        // Check if "hello" is in the AI's response to trigger the wave emote
-        if (response.toLowerCase().includes("hello") || response.toLowerCase().includes("ሰላም")|| response.toLowerCase().includes("hi") || response.toLowerCase().includes("hola") || response.toLowerCase().includes("bonjour")){
-            waveEmote();
-        }
-        else if (response.toLowerCase().includes("no")|| response.toLowerCase().includes("አይደለም") ){
-            nodEmote();
-        }
-
-        speakAmharic(response);
-    } catch (error) {
-        console.error('Error generating content:', error);
-        displayMessage('Failed to get response from AI.', 'ai');
-    }
-}
-
-
-    function displayMessage(text, sender) {
-        const messagesDiv = document.getElementById('messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
-
-
-        const senderLabel = document.createElement('strong');
-        senderLabel.textContent = sender === 'user' ? 'You: ' : 'AVA: ';
-        messageDiv.appendChild(senderLabel);
-
-
-        messageDiv.appendChild(document.createTextNode(text));
-        messagesDiv.appendChild(messageDiv);
-
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-
-        messageDiv.style.opacity = 0;
-        messageDiv.animate([{ opacity: 0 }, { opacity: 1 }], {
-            duration: 500,
-            fill: 'forwards'
-        });
-    }
-
-
-
-
- function speakAmharic(text) {
-    const audioPlayer = new Audio(); // Create an audio player instance
-
-    // Send text to the TTS backend
-    fetch('https://2244fe2a-9d1c-4af8-a9c4-cb4f01dbafcb-00-rhxxb2jncrb0.spock.replit.dev/speak', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ text: text })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to generate TTS');
-        }
-        return response.blob(); // Get the audio blob
-    })
-    .then(audioBlob => {
-        const audioURL = URL.createObjectURL(audioBlob); // Create a URL for the blob
-        audioPlayer.src = audioURL; // Set it as the audio player's source
-        audioPlayer.play(); // Play the audio
-    })
-    .catch(error => {
-        console.error('Error with TTS:', error);
-    });
-}
-
-
-
-
-
-    document.getElementById('send-btn').addEventListener('click', function () {
-    const userInput = document.getElementById('user-input');
-    const message = userInput.value;
-
-    if (message) {
-        displayMessage(message, 'user');
-        generateContent(message);
-        userInput.value = ''; // Clear the textarea after sending
-    }
+applyTheme(theme);
+toggle.addEventListener('click', ()=>{
+    theme = theme==='light' ? 'dark' : 'light';
+    localStorage.setItem('ava-theme', theme);
+    knob.style.transition = 'transform 350ms cubic-bezier(.2,.9,.2,1), opacity 200ms';
+    knob.style.opacity='0.6';
+    setTimeout(()=>{ knob.style.opacity='1'; applyTheme(theme); }, 80);
 });
 
-
-navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(() => console.log("Microphone access granted"))
-    .catch(error => console.error("Microphone access denied:", error));
-
-
-
-document.getElementById('start-btn').addEventListener('click', function () {
-    if (recognition) {
-        try {
-            recognition.start();
-        } catch (error) {
-            console.error("Speech recognition error:", error);
-            alert("Please grant microphone permission.");
-        }
-    } else {
-        alert("Speech recognition is not supported on this device.");
-    }
-});
-
-
-
-    recognition.onresult = function(event) {
-    const transcript = event.results[0][0].transcript.toLowerCase();
-    displayMessage(transcript, 'user');
-    generateContent(transcript);
-
-    // Trigger wave emote if user says "hello"
-    if (transcript.includes("hello")) {
-        waveEmote();
+// ======================= MODALS =======================
+document.getElementById('aboutLink').onclick = ()=> document.getElementById('aboutModal').style.display='block';
+document.getElementById('howToUseLink').onclick = ()=> document.getElementById('howToUseModal').style.display='block';
+document.getElementById('closeAbout').onclick = ()=> document.getElementById('aboutModal').style.display='none';
+document.getElementById('closeHowToUse').onclick = ()=> document.getElementById('howToUseModal').style.display='none';
+window.onclick = (event)=>{
+    if(event.target === document.getElementById('aboutModal') || event.target === document.getElementById('howToUseModal')){
+        event.target.style.display='none';
     }
 };
 
+// ======================= BLE =======================
+let bleDevice, servoCharacteristic;
+document.getElementById("connect-ble").addEventListener("click", async ()=>{
+    try {
+        bleDevice = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:["12345678-1234-1234-1234-123456789abc"]});
+        const server = await bleDevice.gatt.connect();
+        const service = await server.getPrimaryService("12345678-1234-1234-1234-123456789abc");
+        servoCharacteristic = await service.getCharacteristic("87654321-4321-4321-4321-9876543210ab");
+        console.log("BLE Connected!");
+    } catch(e){ console.error("BLE Connection Error:", e); }
+});
 
+async function waveEmote(){ if(servoCharacteristic) await servoCharacteristic.writeValue(new Uint8Array([6])); }
+async function nodEmote(){ if(servoCharacteristic) await servoCharacteristic.writeValue(new Uint8Array([7])); }
 
-    document.getElementById('aboutLink').onclick = function() {
-        document.getElementById('aboutModal').style.display = 'block';
+// ======================= GOOGLE GENERATIVE AI =======================
+import { GoogleGenerativeAI } from "@google/generative-ai";
+const API_KEY = "AIzaSyDYz7uz6p10IewK16YYKsnLbWewhewEiSg";
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = SpeechRecognition ? new SpeechRecognition() : null;
+if(recognition){ recognition.lang='am-ET'; recognition.interimResults=false; recognition.maxAlternatives=1; }
+else alert("Speech recognition not supported.");
+
+async function generateContent(prompt){
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({model:"gemini-2.5-flash"});
+    try {
+        const result = await model.generateContent(prompt);
+        const response = result.response.text();
+        displayMessage(response,'ai');
+
+        if(/hello|ሰላም|hi|hola|bonjour/i.test(response)) waveEmote();
+        else if(/no|አይደለም/i.test(response)) nodEmote();
+
+        speakAmharic(response);
+    } catch(e){ console.error(e); displayMessage('Failed to get response from AI.','ai'); }
+}
+
+// ======================= MESSAGE HANDLER =======================
+function displayMessage(text,sender){
+    const messagesDiv=document.getElementById('messages');
+    const messageDiv=document.createElement('div');
+    messageDiv.className=`message ${sender}-message`;
+    const senderLabel=document.createElement('strong');
+    senderLabel.textContent = sender==='user' ? 'You: ':'AVA: ';
+    messageDiv.appendChild(senderLabel);
+    messageDiv.appendChild(document.createTextNode(text));
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop=messagesDiv.scrollHeight;
+    messageDiv.style.opacity=0;
+    messageDiv.animate([{opacity:0},{opacity:1}],{duration:500,fill:'forwards'});
+}
+
+function speakAmharic(text){
+    const audioPlayer = new Audio();
+    fetch('https://2244fe2a-9d1c-4af8-a9c4-cb4f01dbafcb-00-rhxxb2jncrb0.spock.replit.dev/speak',{
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})
+    }).then(r=>{if(!r.ok)throw new Error('TTS Failed'); return r.blob();})
+      .then(blob=>{ audioPlayer.src=URL.createObjectURL(blob); audioPlayer.play(); })
+      .catch(e=>console.error(e));
+}
+
+document.getElementById('send-btn').addEventListener('click', ()=>{
+    const input=document.getElementById('user-input');
+    if(input.value){ displayMessage(input.value,'user'); generateContent(input.value); input.value=''; }
+});
+
+if(recognition){
+    document.getElementById('start-btn').addEventListener('click', ()=>{ try{ recognition.start(); } catch(e){console.error(e); alert("Grant mic permission."); } });
+    recognition.onresult = (event)=>{
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        displayMessage(transcript,'user'); generateContent(transcript);
+        if(transcript.includes("hello")) waveEmote();
     };
-    document.getElementById('howToUseLink').onclick = function() {
-        document.getElementById('howToUseModal').style.display = 'block';
-    };
+}
 
+navigator.mediaDevices.getUserMedia({audio:true}).catch(e=>console.warn("Mic not available:",e));
 
-    document.getElementById('closeAbout').onclick = function() {
-        document.getElementById('aboutModal').style.display = 'none';
-    };
-    document.getElementById('closeHowToUse').onclick = function() {
-        document.getElementById('howToUseModal').style.display = 'none';
-    };
+// ======================= NETWORK CANVAS =======================
+const canvas = document.getElementById('network');
+const ctx = canvas.getContext('2d');
+let w=canvas.width=window.innerWidth;
+let h=canvas.height=window.innerHeight;
 
+window.addEventListener('resize',()=>{ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; });
 
-    window.onclick = function(event) {
-        if (event.target === document.getElementById('aboutModal') || event.target === document.getElementById('howToUseModal')) {
-            event.target.style.display = 'none';
+const nodes=[];
+for(let i=0;i<60;i++){ nodes.push({x:Math.random()*w,y:Math.random()*h,dx:(Math.random()-0.5)*0.8,dy:(Math.random()-0.5)*0.8}); }
+
+function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(let i=0;i<nodes.length;i++){
+        const n=nodes[i];
+        n.x+=n.dx; n.y+=n.dy;
+        if(n.x<0||n.x>w) n.dx*=-1;
+        if(n.y<0||n.y>h) n.dy*=-1;
+        ctx.fillStyle='rgba(255,0,155,0.6)';
+        ctx.beginPath(); ctx.arc(n.x,n.y,2,0,Math.PI*2); ctx.fill();
+        for(let j=i+1;j<nodes.length;j++){
+            const m=nodes[j];
+            const dist=Math.hypot(n.x-m.x,n.y-m.y);
+            if(dist<120){
+                ctx.strokeStyle='rgba(0,255,255,'+(1-dist/120)*0.6+')';
+                ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(n.x,n.y); ctx.lineTo(m.x,m.y); ctx.stroke();
+            }
         }
-    };
+    }
+    requestAnimationFrame(draw);
+}
+draw();
 </script>
+
 </body>
 </html>
-
