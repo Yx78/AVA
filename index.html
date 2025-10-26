@@ -1,237 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVA</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVA</title>
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=TkMLqU0K"></script>
 
-    
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=TkMLqU0K"></script>
-    <style>
-        body {
-            font-family: 'Arial Black', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #333;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #222;
-            padding: 10px 20px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-        .navbar img {
-            height: 30px;
-        }
-        .navbar a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: #aaa;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .navbar .menu-right {
-            display: flex;
-            align-items: center;
-        }
-        .navbar .menu-right a:hover {
-            color: #fff;
-        }
-        .container {
-            
-            flex-grow: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            background-color: #111;
-            margin-top: 60px;
-        }
-        .lol {
-            font-size: 30px;
-            font-weight: bold;
-            background: linear-gradient(90deg, blue, red);
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .input-container {
-            
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .input-field:hover{
-            border:1px solid aqua;
-            transition: 0.5s;
-        }
-        .input-container button {
-            width: 60px;
-            height: 60px;
-            border: none;
-            border-radius: 50%;
-            background-color: blue;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .input-container button:hover {
-            background-color: #333;
-            transform: scale(1.1); 
-        }
-        .input-container button:active {
-            transform: scale(0.9); 
-        }
-        .input-container button.recording {
-            background-color: green;
-        }
-        .messages {
-            background-image: url("../res/bg.png");
-            background-size: cover;
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #111;
-            border: none; 
-        }
-        .message {
-            padding: 10px;
-            border-radius: 10px;
-            margin: 5px 0;
-            max-width: 80%;
-            color: white;
-            position: relative;
-            word-wrap: break-word;
-            opacity: 0; 
-            animation: fadeIn 0.5s forwards; 
-        }
-        .user-message {
-            align-self: flex-end;
-            background: linear-gradient(90deg, blue, red);
-        }
-        .ai-message {
-            align-self: flex-start;
-            background-color: rgba(224, 224, 224, 0.9);
-            color: black;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 100px;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            margin-right: auto;
-            
-        }
-        .modal-content {
-            background-color: #333;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 50%;
-            text-align: center;
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .input-field {
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            background-color: #333;
-            color: white;
-            font-size: 16px;
-            margin-right: 10px;
-            flex-grow: 1;
-            resize: vertical; /* Allow users to resize the textarea vertically */
-            min-height: 50px; /* Minimum height for the textarea */
-            max-height: 200px; /* Maximum height for the textarea */
-            overflow-y: auto; /* Enable scrolling if content exceeds max-height */
-        }
+<style>
+    /* ===== CSS VARIABLES FOR THEMING ===== */
+    :root{
+        --bg-1: #020202;
+        --bg-2: #0b0b0b;
+        --panel: rgba(20,20,20,0.8);
+        --text-primary: #e6f7f7;
+        --muted: #bbb;
+        --accent-1: #00ffff;
+        --accent-2: #ff00ff;
+        --user-bubble-start: #00ffff;
+        --user-bubble-end: #007bff;
+        --ai-bubble: rgba(255,255,255,0.1);
+        --glass: rgba(255,255,255,0.03);
+        --shadow: rgba(0,255,255,0.12);
+        --send-bg: linear-gradient(90deg, var(--accent-1), #007bff);
+    }
 
-        
+    [data-theme="light"]{
+        --bg-1: #f5f7fb;
+        --bg-2: #e9eef7;
+        --panel: rgba(255,255,255,0.9);
+        --text-primary: #0b1630;
+        --muted: #4b5563;
+        --accent-1: #0066ff;
+        --accent-2: #ff3366;
+        --user-bubble-start: #4f8bff;
+        --user-bubble-end: #88baff;
+        --ai-bubble: rgba(10,25,45,0.06);
+        --glass: rgba(0,0,0,0.03);
+        --shadow: rgba(0,102,255,0.12);
+        --send-bg: linear-gradient(90deg, var(--accent-1), #2b8cff);
+    }
 
-     
+    /* Smooth animated transitions for theme changes */
+    * {
+        box-sizing: border-box;
+        transition: background-color 400ms ease, color 400ms ease, border-color 350ms ease, box-shadow 350ms ease;
+    }
 
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", Arial, sans-serif;
+        background: radial-gradient(circle at top left, var(--bg-1), var(--bg-2));
+        color: var(--text-primary);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-    
-        #connect-ble{
-            position: relative;
-            left: 0px;
-            bottom: 0px;
-            width:250px;
-            background-color: blue;
-            color: white;
-            box-shadow: #000;
-            border: none;
-            border-radius: 6px;
-            transition: 0.5s;
-        }
-        #connect-ble:hover{
-            background-color: #fff;
-            color:#000 ;
-            transition: 0.5s;
-        }
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--panel);
+        backdrop-filter: blur(10px);
+        padding: 12px 18px;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        box-shadow: 0 0 15px var(--shadow);
+        z-index: 10;
+    }
+    .navbar a {
+        text-decoration: none;
+        color: var(--muted);
+        margin: 0 12px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .navbar a:hover { color: var(--accent-1); }
 
-    </style>
+    /* THEME TOGGLE BUTTON */
+    .theme-toggle {
+        width: 48px;
+        height: 28px;
+        border-radius: 30px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
+        display: inline-flex;
+        align-items: center;
+        padding: 3px;
+        cursor: pointer;
+        position: relative;
+        border: 1px solid rgba(255,255,255,0.06);
+        transition: transform 250ms ease;
+    }
+    .theme-toggle:hover { transform: scale(1.05); }
+    .toggle-knob {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #fff, #e6e6e6);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        transition: transform 350ms cubic-bezier(.2,.9,.2,1), background 350ms;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    [data-theme="dark"] .toggle-knob { background: linear-gradient(180deg, #f8f8f8, #e6e6e6); }
+    [data-theme="light"] .toggle-knob { transform: translateX(20px); }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        flex: 1;
+        padding: 80px 20px 20px;
+        background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04));
+    }
+
+    .lol {
+        font-size: 40px;
+        font-weight: 800;
+        background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        animation: glowPulse 2s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+        from { text-shadow: 0 0 8px var(--accent-1); }
+        to { text-shadow: 0 0 20px var(--accent-2); }
+    }
+
+    .messages {
+        background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0));
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 15px;
+        width: 100%;
+        max-width: 900px;
+        height: 55vh;
+        overflow-y: auto;
+        padding: 18px;
+        box-shadow: inset 0 0 20px var(--shadow);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message {
+        margin: 10px 0;
+        padding: 12px 18px;
+        border-radius: 18px;
+        line-height: 1.4em;
+        animation: fadeIn 0.28s ease forwards;
+        word-wrap: break-word;
+        max-width: 72%;
+        color: var(--text-primary);
+    }
+
+    .user-message {
+        background: linear-gradient(90deg, var(--user-bubble-start), var(--user-bubble-end));
+        align-self: flex-end;
+        color: #001022;
+    }
+
+    .ai-message {
+        background: var(--ai-bubble);
+        color: var(--text-primary);
+        align-self: flex-start;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
+
+    .input-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 900px;
+        margin-top: 15px;
+        gap: 10px;
+    }
+
+    .input-field {
+        flex-grow: 1;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 25px;
+        color: var(--text-primary);
+        padding: 12px 18px;
+        font-size: 16px;
+        resize: none;
+        min-height: 45px;
+        max-height: 200px;
+    }
+
+    .input-field:focus {
+        border-color: var(--accent-1);
+        outline: none;
+        box-shadow: 0 0 12px rgba(0,0,0,0.15);
+    }
+
+    .input-container button {
+        width: 56px;
+        height: 56px;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    #send-btn { background: var(--send-bg); color: #fff; }
+    #start-btn { background: linear-gradient(90deg, var(--accent-2), #ff0077); color: #fff; }
+
+    .input-container button:hover { transform: scale(1.07); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+
+    #connect-ble { margin-top: 18px; background: linear-gradient(90deg, #007bff, var(--accent-1)); color: #fff; font-weight: 600; border: none; border-radius: 10px; padding: 12px 36px; cursor: pointer; }
+    #connect-ble:hover { transform: scale(1.04); }
+
+    .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); }
+    .modal-content { background: var(--panel); border: 1px solid rgba(255,255,255,0.06); margin: 10% auto; padding: 25px; border-radius: 15px; width: 60%; color: var(--text-primary); box-shadow: 0 0 20px var(--shadow); text-align: center; max-width: 500px; }
+    .modal-content h2 { color: var(--accent-1); margin-bottom: 10px; }
+    .close { float: right; font-size: 26px; color: var(--muted); cursor: pointer; }
+    .close:hover { color: var(--text-primary); }
+
+    /* Responsive tweaks */
+    @media (max-width: 720px){ .messages { height: 60vh; } .lol { font-size: 30px; } .container{ padding: 90px 12px 18px } }
+</style>
 </head>
 <body>
 
- 
 <div class="navbar">
-    
     <div class="menu-left">
-        <a id="aboutLink" class="">   About</a>
-        <a id="howToUseLink" >How to Use</a>
-        <a href="home.html" class="sidebar-link">   Home</a>
-        <a href="robocontrol.html" class="sidebar-link">  Control</a>
-        
+        <a id="aboutLink">About</a>
+        <a id="howToUseLink">How to Use</a>
+        <a href="home.html">Home</a>
+        <a href="robocontrol.html">Control</a>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+        <!-- Theme toggle -->
+        <div id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+            <div class="toggle-knob" id="toggleKnob">🌙</div>
+        </div>
     </div>
 </div>
-
-
 
 <div id="aboutModal" class="modal">
     <div class="modal-content">
         <span class="close" id="closeAbout">&times;</span>
         <h2>About</h2>
-        <p style="color: #aaa;">Developer: Yaffet Million<br>
-           Email: xthunder308@gmail.com
-        </p>
+        <p>Developer: Yaffet Million<br>Email: xthunder308@gmail.com</p>
     </div>
 </div>
 
@@ -239,24 +265,58 @@
     <div class="modal-content">
         <span class="close" id="closeHowToUse">&times;</span>
         <h2>How to Use</h2>
-        <p style="color: #aaa;">Click the speak button and talk in Amharic to get a response from the AI! You can also type in the input field.</p>
+        <p>Click the mic button to speak Amharic or type your message. AVA will respond with voice and text.</p>
     </div>
 </div>
 
 <div class="container">
-    <h2 class="lol">a.v.a</h2>
+    <h2 class="lol">A.V.A</h2>
 
     <div class="messages" id="messages"></div>
 
     <div class="input-container">
         <textarea id="user-input" class="input-field" placeholder="Type your message here..." aria-label="Type your message here"></textarea>
-        <button id="send-btn">&#8593;</button> 
-        <button id="start-btn">&#x1F3A4;</button> 
+        <button id="send-btn">&#8593;</button>
+        <button id="start-btn">&#x1F3A4;</button>
     </div>
-    <button id="connect-ble">Connect</button>
-
+    <button id="connect-ble">Connect BLE</button>
 </div>
 
+<!-- THEME HANDLER SCRIPT (keeps original main script untouched) -->
+<script>
+(function(){
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const knob = document.getElementById('toggleKnob');
+    const stored = localStorage.getItem('ava-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (prefersDark ? 'dark' : 'light');
+
+    function applyTheme(t){
+        document.documentElement.setAttribute('data-theme', t);
+        if(t === 'light'){
+            knob.textContent = '☀️';
+            knob.style.transform = 'translateX(20px)';
+        } else {
+            knob.textContent = '🌙';
+            knob.style.transform = 'translateX(0)';
+        }
+    }
+
+    applyTheme(theme);
+
+    toggle.addEventListener('click', ()=>{
+        theme = (document.documentElement.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
+        localStorage.setItem('ava-theme', theme);
+        // subtle animation
+        knob.style.transition = 'transform 350ms cubic-bezier(.2,.9,.2,1), opacity 200ms';
+        knob.style.opacity = '0.6';
+        setTimeout(()=>{ knob.style.opacity = '1'; applyTheme(theme); }, 80);
+    });
+})();
+</script>
+
+<!-- ===== SCRIPT (UNCHANGED) ===== -->
 <script type="importmap">
   {
     "imports": {
@@ -266,10 +326,10 @@
 </script>
 
 <script type="module">
+    // === your full original JS logic stays identical ===
     let bleDevice;
     let servoCharacteristic;
     document.getElementById("connect-ble").addEventListener("click", connectBLE);
-
 
     async function connectBLE() {
         try {
@@ -307,7 +367,7 @@
 
     import { GoogleGenerativeAI } from "@google/generative-ai";
 
-    const API_KEY = "AIzaSyDYz7uz6p10IewK16YYKsnLbWewhewEiSg"; 
+    const API_KEY = "AIzaSyDYz7uz6p10IewK16YYKsnLbWewhewEiSg";
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 
@@ -320,8 +380,8 @@ if (SpeechRecognition) {
     alert("Speech recognition is not supported on this browser.");
 }
 
-    
-       
+
+
     async function generateContent(prompt) {
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -353,18 +413,18 @@ if (SpeechRecognition) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
 
-        
+
         const senderLabel = document.createElement('strong');
         senderLabel.textContent = sender === 'user' ? 'You: ' : 'AVA: ';
         messageDiv.appendChild(senderLabel);
 
-    
+
         messageDiv.appendChild(document.createTextNode(text));
         messagesDiv.appendChild(messageDiv);
-        
+
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-        
+
         messageDiv.style.opacity = 0;
         messageDiv.animate([{ opacity: 0 }, { opacity: 1 }], {
             duration: 500,
@@ -372,8 +432,8 @@ if (SpeechRecognition) {
         });
     }
 
-    
-    
+
+
 
  function speakAmharic(text) {
     const audioPlayer = new Audio(); // Create an audio player instance
@@ -405,8 +465,7 @@ if (SpeechRecognition) {
 
 
 
-    
-    
+
     document.getElementById('send-btn').addEventListener('click', function () {
     const userInput = document.getElementById('user-input');
     const message = userInput.value;
@@ -417,7 +476,6 @@ if (SpeechRecognition) {
         userInput.value = ''; // Clear the textarea after sending
     }
 });
-
 
 
 navigator.mediaDevices.getUserMedia({ audio: true })
@@ -440,7 +498,7 @@ document.getElementById('start-btn').addEventListener('click', function () {
 });
 
 
-    
+
     recognition.onresult = function(event) {
     const transcript = event.results[0][0].transcript.toLowerCase();
     displayMessage(transcript, 'user');
@@ -453,7 +511,7 @@ document.getElementById('start-btn').addEventListener('click', function () {
 };
 
 
-    
+
     document.getElementById('aboutLink').onclick = function() {
         document.getElementById('aboutModal').style.display = 'block';
     };
@@ -461,7 +519,7 @@ document.getElementById('start-btn').addEventListener('click', function () {
         document.getElementById('howToUseModal').style.display = 'block';
     };
 
-    
+
     document.getElementById('closeAbout').onclick = function() {
         document.getElementById('aboutModal').style.display = 'none';
     };
@@ -469,7 +527,7 @@ document.getElementById('start-btn').addEventListener('click', function () {
         document.getElementById('howToUseModal').style.display = 'none';
     };
 
-    
+
     window.onclick = function(event) {
         if (event.target === document.getElementById('aboutModal') || event.target === document.getElementById('howToUseModal')) {
             event.target.style.display = 'none';
@@ -478,7 +536,3 @@ document.getElementById('start-btn').addEventListener('click', function () {
 </script>
 </body>
 </html>
-
-
-
-
