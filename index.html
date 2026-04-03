@@ -1,451 +1,1710 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVA</title>
-<script src="https://code.responsivevoice.org/responsivevoice.js?key=TkMLqU0K"></script>
-<script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
-<style>
-/* ===== CSS VARIABLES FOR THEMING ===== */
-:root{
-    --bg-1: #020202;
-    --bg-2: #0b0b0b;
-    --panel: rgba(20,20,20,0.8);
-    --text-primary: #e6f7f7;
-    --muted: #bbb;
-    --accent-1: #00ffff;
-    --accent-2: #ff00ff;
-    --user-bubble-start: #00ffff;
-    --user-bubble-end: #007bff;
-    --ai-bubble: rgba(255,255,255,0.1);
-    --glass: rgba(255,255,255,0.03);
-    --shadow: rgba(0,255,255,0.12);
-    --send-bg: linear-gradient(90deg, var(--accent-1), #007bff);
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>AVA — Zen</title>
 
-[data-theme="light"]{
-    --bg-1: #f5f7fb;
-    --bg-2: #e9eef7;
-    --panel: rgba(255,255,255,0.9);
-    --text-primary: #0b1630;
-    --muted: #4b5563;
-    --accent-1: #0066ff;
-    --accent-2: #ff3366;
-    --user-bubble-start: #4f8bff;
-    --user-bubble-end: #88baff;
-    --ai-bubble: rgba(10,25,45,0.06);
-    --glass: rgba(0,0,0,0.03);
-    --shadow: rgba(0,102,255,0.12);
-    --send-bg: linear-gradient(90deg, var(--accent-1), #2b8cff);
-}
+  <!-- face-api -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap"
+    rel="stylesheet">
 
-/* Smooth transitions */
-* {
-    box-sizing: border-box;
-    transition: background-color 400ms ease, color 400ms ease, border-color 350ms ease, box-shadow 350ms ease;
-}
+  <style>
+    :root {
+      /* Minimalist Palette */
+      --bg: #f9f9f9;
+      --text: #111;
+      --sub: #666;
+      --border: #ddd;
+      --accent: #000;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Poppins", Arial, sans-serif;
-    background: radial-gradient(circle at top left, var(--bg-1), var(--bg-2));
-    color: var(--text-primary);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+    [data-theme="dark"] {
+      --bg: #111;
+      --text: #eee;
+      --sub: #888;
+      --border: #333;
+      --accent: #fff;
+    }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--panel);
-    backdrop-filter: blur(10px);
-    padding: 12px 18px;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    box-shadow: 0 0 15px var(--shadow);
-    z-index: 10;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-.navbar a {
-    text-decoration: none;
-    color: var(--muted);
-    margin: 0 12px;
-    font-weight: 500;
-    transition: 0.3s;
-}
-.navbar a:hover { color: var(--accent-1); }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
 
-/* Theme toggle button */
-.theme-toggle {
-    width: 48px;
-    height: 28px;
-    border-radius: 30px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
-    display: inline-flex;
-    align-items: center;
-    padding: 3px;
-    cursor: pointer;
-    position: relative;
-    border: 1px solid rgba(255,255,255,0.06);
-    transition: transform 250ms ease;
-}
-.theme-toggle:hover { transform: scale(1.05); }
+    /* Header */
+    .header {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
 
-.toggle-knob {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #fff, #e6e6e6);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    transition: transform 350ms cubic-bezier(.2,.9,.2,1), background 350ms;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
+    .brand {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      transition: color 0.3s;
+    }
 
-/* Container */
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    flex: 1;
-    padding: 80px 20px 20px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04));
-}
+    .menu-toggle {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
 
-.lol {
-    font-size: 40px;
-    font-weight: 800;
-    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-    animation: glowPulse 2s infinite alternate;
-}
+    .menu-toggle:hover {
+      opacity: 1;
+    }
 
-@keyframes glowPulse {
-    from { text-shadow: 0 0 8px var(--accent-1); }
-    to { text-shadow: 0 0 20px var(--accent-2); }
-}
-
-.messages {
-    background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0));
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 15px;
-    width: 100%;
-    max-width: 900px;
-    height: 55vh;
-    overflow-y: auto;
-    padding: 18px;
-    box-shadow: inset 0 0 20px var(--shadow);
-    display: flex;
-    flex-direction: column;
-}
-
-.message {
-    margin: 10px 0;
-    padding: 12px 18px;
-    border-radius: 18px;
-    line-height: 1.4em;
-    animation: fadeIn 0.28s ease forwards;
-    word-wrap: break-word;
-    max-width: 72%;
-    color: var(--text-primary);
-}
-
-.user-message {
-    background: linear-gradient(90deg, var(--user-bubble-start), var(--user-bubble-end));
-    align-self: flex-end;
-    color: #001022;
-}
-
-.ai-message {
-    background: var(--ai-bubble);
-    color: var(--text-primary);
-    align-self: flex-start;
-}
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
-
-.input-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 900px;
-    margin-top: 15px;
-    gap: 10px;
-}
-
-.input-field {
-    flex-grow: 1;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 25px;
-    color: var(--text-primary);
-    padding: 12px 18px;
-    font-size: 16px;
-    resize: none;
-    min-height: 45px;
-    max-height: 200px;
-}
-
-.input-field:focus {
-    border-color: var(--accent-1);
-    outline: none;
-    box-shadow: 0 0 12px rgba(0,0,0,0.15);
-}
-
-.input-container button {
-    width: 56px;
-    height: 56px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 220ms ease, box-shadow 220ms ease;
-}
-
-#send-btn { background: var(--send-bg); color: #fff; }
-#start-btn { background: linear-gradient(90deg, var(--accent-2), #ff0077); color: #fff; }
-
-.input-container button:hover { transform: scale(1.07); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
-
-#connect-ble { margin-top: 18px; background: linear-gradient(90deg, #007bff, var(--accent-1)); color: #fff; font-weight: 600; border: none; border-radius: 10px; padding: 12px 36px; cursor: pointer; }
-#connect-ble:hover { transform: scale(1.04); }
-
-.modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); }
-.modal-content { background: var(--panel); border: 1px solid rgba(255,255,255,0.06); margin: 10% auto; padding: 25px; border-radius: 15px; width: 60%; color: var(--text-primary); box-shadow: 0 0 20px var(--shadow); text-align: center; max-width: 500px; }
-.modal-content h2 { color: var(--accent-1); margin-bottom: 10px; }
-.close { float: right; font-size: 26px; color: var(--muted); cursor: pointer; }
-.close:hover { color: var(--text-primary); }
-
-@media (max-width: 720px){
-    .messages { height: 60vh; }
-    .lol { font-size: 30px; }
-    .container{ padding: 90px 12px 18px }
-}
-
-/* Canvas network background */
-#network {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -4;
-    pointer-events: none;
-}
-</style>
-</head>
-<body>
-
-<div class="navbar">
-    <div class="menu-left">
-        <a id="aboutLink">About</a>
-        <a id="howToUseLink">How to Use</a>
-        <a href="home.html">Home</a>
-        <a href="robocontrol.html">Control</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-        <div id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
-            <div class="toggle-knob" id="toggleKnob">🌙</div>
-        </div>
-    </div>
-</div>
-
-<div id="aboutModal" class="modal">
-    <div class="modal-content">
-        <span class="close" id="closeAbout">&times;</span>
-        <h2>About</h2>
-        <p>Developer: Yaffet Million<br>Email: xthunder308@gmail.com</p>
-    </div>
-</div>
-
-<div id="howToUseModal" class="modal">
-    <div class="modal-content">
-        <span class="close" id="closeHowToUse">&times;</span>
-        <h2>How to Use</h2>
-        <p>Click the mic button to speak Amharic or type your message. AVA will respond with voice and text.</p>
-    </div>
-</div>
-
-
-
-<div class="container">
-    <h2 class="lol">A.V.A</h2>
-    <div class="messages" id="messages"></div>
-    <div class="input-container">
-        <textarea id="user-input" class="input-field" placeholder="Type your message here..." aria-label="Type your message here"></textarea>
-        <button id="send-btn">&#8593;</button>
-        <button id="start-btn">&#x1F3A4;</button>
-		<canvas id="network"></canvas>
-    </div>
-    <button id="connect-ble">Connect Robot</button>
-</div>
-
-<script type="importmap">
-{
-  "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" }
-}
-</script>
-
-<script type="module">
-// ======================= THEME =======================
-const toggle = document.getElementById('themeToggle');
-const knob = document.getElementById('toggleKnob');
-let theme = localStorage.getItem('ava-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
-
-function applyTheme(t){
-    document.documentElement.setAttribute('data-theme', t);
-    knob.textContent = t==='light' ? '☀️':'🌙';
-    knob.style.transform = t==='light' ? 'translateX(20px)' : 'translateX(0)';
+    /* Mode - Teaching (Zen Blue) */
+    [data-theme="light"][data-mode="teaching"] {
+      --accent: #1976d2;
+      --accent-glow: rgba(25, 118, 210, 0.2);
+      --bg: #f0f7ff;
+      --border: #bbdefb;
+    }
     
-}
-applyTheme(theme);
-toggle.addEventListener('click', ()=>{
-    theme = theme==='light' ? 'dark' : 'light';
-    localStorage.setItem('ava-theme', theme);
-    knob.style.transition = 'transform 350ms cubic-bezier(.2,.9,.2,1), opacity 200ms';
-    knob.style.opacity='0.6';
-    setTimeout(()=>{ knob.style.opacity='1'; applyTheme(theme); }, 80);
-});
-
-// ======================= MODALS =======================
-document.getElementById('aboutLink').onclick = ()=> document.getElementById('aboutModal').style.display='block';
-document.getElementById('howToUseLink').onclick = ()=> document.getElementById('howToUseModal').style.display='block';
-document.getElementById('closeAbout').onclick = ()=> document.getElementById('aboutModal').style.display='none';
-document.getElementById('closeHowToUse').onclick = ()=> document.getElementById('howToUseModal').style.display='none';
-window.onclick = (event)=>{
-    if(event.target === document.getElementById('aboutModal') || event.target === document.getElementById('howToUseModal')){
-        event.target.style.display='none';
+    [data-theme="dark"][data-mode="teaching"] {
+      --accent: #64b5f6;
+      --accent-glow: rgba(100, 181, 246, 0.4);
+      --bg: #0d151c;
+      --border: #15304a;
     }
-};
 
-// ======================= BLE =======================
-let bleDevice, servoCharacteristic;
-document.getElementById("connect-ble").addEventListener("click", async ()=>{
-    try {
-        bleDevice = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:["12345678-1234-1234-1234-123456789abc"]});
-        const server = await bleDevice.gatt.connect();
-        const service = await server.getPrimaryService("12345678-1234-1234-1234-123456789abc");
-        servoCharacteristic = await service.getCharacteristic("87654321-4321-4321-4321-9876543210ab");
-        console.log("BLE Connected!");
-    } catch(e){ console.error("BLE Connection Error:", e); }
-});
+    /* Mode - Agriculture (Zen Green) */
+    [data-theme="light"][data-mode="agriculture"] {
+      --accent: #2e7d32;
+      --accent-glow: rgba(46, 125, 50, 0.2);
+      --bg: #f0f8f1;
+      --border: #c8e6c9;
+    }
+    
+    [data-theme="dark"][data-mode="agriculture"] {
+      --accent: #81c784;
+      --accent-glow: rgba(129, 199, 132, 0.4);
+      --bg: #0c140d;
+      --border: #1b3a20;
+    }
 
-async function waveEmote(){ if(servoCharacteristic) await servoCharacteristic.writeValue(new Uint8Array([6])); }
-async function nodEmote(){ if(servoCharacteristic) await servoCharacteristic.writeValue(new Uint8Array([7])); }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
 
-// ======================= GOOGLE GENERATIVE AI =======================
-import { GoogleGenerativeAI } from "@google/generative-ai";
-const API_KEY = "AIzaSyDYz7uz6p10IewK16YYKsnLbWewhewEiSg";
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition = SpeechRecognition ? new SpeechRecognition() : null;
-if(recognition){ recognition.lang='am-ET'; recognition.interimResults=false; recognition.maxAlternatives=1; }
-else alert("Speech recognition not supported.");
+    /* Main Scroll Area */
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 24px 120px;
+      /* high bottom padding for input area */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      scroll-behavior: smooth;
+    }
 
-async function generateContent(prompt){
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({model:"gemini-2.5-flash"});
-    try {
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
-        displayMessage(response,'ai');
+    .content-wrapper {
+      width: 100%;
+      max-width: 680px;
+      /* Reading width */
+    }
 
-        if(/hello|ሰላም|hi|hola|bonjour/i.test(response)) waveEmote();
-        else if(/no|አይደለም/i.test(response)) nodEmote();
+    .greeting {
+      font-size: 24px;
+      color: var(--sub);
+      margin-bottom: 40px;
+      animation: fadeIn 0.8s ease;
+    }
 
-        speakAmharic(response);
-    } catch(e){ console.error(e); displayMessage('Failed to get response from AI.','ai'); }
-}
+    .greeting b {
+      font-weight: 500;
+      color: var(--accent);
+      transition: color 0.3s;
+    }
 
-// ======================= MESSAGE HANDLER =======================
-function displayMessage(text,sender){
-    const messagesDiv=document.getElementById('messages');
-    const messageDiv=document.createElement('div');
-    messageDiv.className=`message ${sender}-message`;
-    const senderLabel=document.createElement('strong');
-    senderLabel.textContent = sender==='user' ? 'You: ':'AVA: ';
-    messageDiv.appendChild(senderLabel);
-    messageDiv.appendChild(document.createTextNode(text));
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop=messagesDiv.scrollHeight;
-    messageDiv.style.opacity=0;
-    messageDiv.animate([{opacity:0},{opacity:1}],{duration:500,fill:'forwards'});
-}
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
 
-function speakAmharic(text){
-    const audioPlayer = new Audio();
-    fetch('https://2244fe2a-9d1c-4af8-a9c4-cb4f01dbafcb-00-rhxxb2jncrb0.spock.replit.dev/speak',{
-        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})
-    }).then(r=>{if(!r.ok)throw new Error('TTS Failed'); return r.blob();})
-      .then(blob=>{ audioPlayer.src=URL.createObjectURL(blob); audioPlayer.play(); })
-      .catch(e=>console.error(e));
-}
+      to {
+        opacity: 1.2;
+        transform: translateY(0)
+      }
+    }
 
-document.getElementById('send-btn').addEventListener('click', ()=>{
-    const input=document.getElementById('user-input');
-    if(input.value){ displayMessage(input.value,'user'); generateContent(input.value); input.value=''; }
-});
+    /* Conversation - Script Style */
+    .conversation {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
 
-if(recognition){
-    document.getElementById('start-btn').addEventListener('click', ()=>{ try{ recognition.start(); } catch(e){console.error(e); alert("Grant mic permission."); } });
-    recognition.onresult = (event)=>{
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        displayMessage(transcript,'user'); generateContent(transcript);
-        if(transcript.includes("hello")) waveEmote();
-    };
-}
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      animation: slideUp 0.3s ease-out;
+    }
 
-navigator.mediaDevices.getUserMedia({audio:true}).catch(e=>console.warn("Mic not available:",e));
+    to {
+      opacity: 1;
+      transform: translateY(0)
+    }
 
-// ======================= NETWORK CANVAS =======================
-const canvas = document.getElementById('network');
-const ctx = canvas.getContext('2d');
-let w=canvas.width=window.innerWidth;
-let h=canvas.height=window.innerHeight;
 
-window.addEventListener('resize',()=>{ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; });
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.98);
+      }
 
-const nodes=[];
-for(let i=0;i<60;i++){ nodes.push({x:Math.random()*w,y:Math.random()*h,dx:(Math.random()-0.5)*0.8,dy:(Math.random()-0.5)*0.8}); }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
 
-function draw(){
-    ctx.clearRect(0,0,w,h);
-    for(let i=0;i<nodes.length;i++){
-        const n=nodes[i];
-        n.x+=n.dx; n.y+=n.dy;
-        if(n.x<0||n.x>w) n.dx*=-1;
-        if(n.y<0||n.y>h) n.dy*=-1;
-        ctx.fillStyle='rgba(255,0,255,0.6)';
-        ctx.beginPath(); ctx.arc(n.x,n.y,2,0,Math.PI*2); ctx.fill();
-        for(let j=i+1;j<nodes.length;j++){
-            const m=nodes[j];
-            const dist=Math.hypot(n.x-m.x,n.y-m.y);
-            if(dist<120){
-                ctx.strokeStyle='rgba(0,255,255,'+(1-dist/120)*0.6+')';
-                ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(n.x,n.y); ctx.lineTo(m.x,m.y); ctx.stroke();
-            }
+    /* Staggered Load */
+    .stagger-1 {
+      animation: fadeIn 0.8s ease backwards 0.1s;
+    }
+
+    .stagger-2 {
+      animation: fadeIn 0.8s ease backwards 0.2s;
+    }
+
+    .stagger-3 {
+      animation: fadeIn 0.8s ease backwards 0.3s;
+    }
+
+    /* Interactive Hover States */
+    .action-btn {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+      opacity: 0.5;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      border-radius: 50%;
+    }
+
+    .action-btn:hover {
+      opacity: 1;
+      background: rgba(128, 128, 128, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .input-dock {
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .input-dock:focus-within {
+      transform: translateY(-4px);
+    }
+
+    /* Menu Transitions */
+    .menu-overlay {
+      transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      display: flex !important;
+      /* Override display:none for transition */
+      visibility: hidden;
+    }
+
+    .menu-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+      backdrop-filter: blur(8px);
+    }
+
+    .menu-grid {
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.4s ease 0.1s;
+    }
+
+    .menu-overlay.open .menu-grid {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+
+    .msg-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sub);
+      opacity: 0.6;
+    }
+
+    .msg-content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .msg-row.user .msg-content {
+      font-weight: 500;
+    }
+
+    .msg-row.ai .msg-content {
+      font-weight: 300;
+    }
+
+    /* Input Area - Typewriter Style */
+    .input-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    /* Gradient fade above input */
+    .input-dock::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: linear-gradient(to top, var(--bg), transparent);
+      pointer-events: none;
+    }
+
+    .input-bar {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .input-field {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      color: var(--text);
+      padding: 0;
+      margin: 0;
+      outline: none;
+      resize: none;
+      min-height: 24px;
+      max-height: 120px;
+    }
+
+    .input-field::placeholder {
+      color: var(--sub);
+      opacity: 0.5;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      padding: 4px;
+      opacity: 0.4;
+      transition: 0.2s;
+    }
+
+    .action-btn:hover {
+      opacity: 1;
+    }
+
+    .action-btn.active {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    /* Full Screen Menu (Overlay) */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      padding: 24px;
+      animation: fadeIn 0.2s ease;
+      overflow-y: auto;
+    }
+
+    .menu-overlay.open {
+      display: flex;
+    }
+
+    .menu-header {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 40px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .menu-col h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--sub);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      padding: 12px 0;
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-item:hover {
+      color: var(--sub);
+    }
+
+    .menu-item span.status {
+      font-size: 13px;
+      color: var(--sub);
+    }
+
+    /* Form Elements in Menu */
+    .setting-row {
+      margin-bottom: 16px;
+    }
+
+    .setting-row label {
+      display: block;
+      font-size: 12px;
+      color: var(--sub);
+      margin-bottom: 6px;
+    }
+
+    .setting-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      border-radius: 4px;
+    }
+
+    .setting-input:focus {
+      border-color: var(--text);
+      outline: none;
+    }
+
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Face Video */
+    #faceVideo {
+      width: 100%;
+      border-radius: 4px;
+      background: #333;
+    }
+
+    .face-container {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Custom Select */
+    .custom-select-wrapper {
+      position: relative;
+      user-select: none;
+      width: 100%;
+    }
+
+    .custom-select {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .custom-select__trigger {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      background: transparent;
+      transition: 0.2s;
+    }
+
+    .custom-select__trigger:hover {
+      border-color: var(--sub);
+    }
+
+    .custom-options {
+      position: absolute;
+      display: block;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border: 1px solid var(--border);
+      border-top: 0;
+      background: var(--bg);
+      transition: all 0.2s;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 10;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-select.open .custom-options {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+    }
+
+    .custom-option {
+      position: relative;
+      display: block;
+      padding: 10px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .custom-option:hover {
+      background: rgba(128, 128, 128, 0.1);
+      color: var(--text);
+    }
+
+    .custom-option.selected {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .arrow {
+      position: relative;
+      height: 8px;
+      width: 8px;
+    }
+
+    .arrow::before,
+    .arrow::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      width: 0.15rem;
+      height: 100%;
+      transition: all 0.2s;
+      background-color: var(--sub);
+    }
+
+    .arrow::before {
+      left: -2px;
+      transform: rotate(45deg);
+    }
+
+    .arrow::after {
+      left: 2px;
+      transform: rotate(-45deg);
+    }
+
+    .open .arrow::before {
+      left: -2px;
+      transform: rotate(-45deg);
+    }
+
+    .open .arrow::after {
+      left: 2px;
+      transform: rotate(45deg);
+    }
+
+    /* Code Blocks */
+    .code-block {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9em;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+    }
+
+    .inline-code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    [data-theme="light"] .code-block,
+    [data-theme="light"] .inline-code {
+      background: #f5f5f5;
+      border-color: #ddd;
+    }
+
+    /* Range Slider */
+    input[type=range] {
+      appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: var(--text);
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: var(--border);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+
+  <div class="header">
+    <div class="brand">AVA <sup>2.0</sup></div>
+    <div>
+      <button class="menu-toggle" id="openRobotBtn" title="Control Robot" style="margin-right: 16px; font-size: 20px;">🤖</button>
+      <button class="menu-toggle" id="openFaceBtn" title="Face Recognition"
+        style="margin-right: 16px; font-size: 20px;">👤</button>
+      <button class="menu-toggle" id="openMenuBtn">☰</button>
+    </div>
+  </div>
+
+  <div class="main-scroll">
+    <div class="content-wrapper">
+      <div class="greeting" id="greeting">Hello <b>Guest</b></div>
+
+      <div class="conversation" id="conversation" aria-live="polite">
+        <!-- Messages will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <div class="input-dock">
+    <div class="input-bar">
+      <textarea id="centerInput" class="input-field" rows="1" placeholder="Type something..."></textarea>
+      <button class="action-btn" id="micBtn" title="Voice">🎤</button>
+      <button class="action-btn" id="askBtn" title="Send">→</button>
+    </div>
+    <!-- Hidden chips for logic compatibility -->
+    <div id="chips" style="display:none"></div>
+  </div>
+
+  <!-- Face Recognition Dedicated Overlay -->
+  <div class="menu-overlay" id="faceMenu">
+    <div class="menu-header">
+      <button class="menu-toggle" id="closeFaceBtn">✕</button>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-col">
+        <h3 data-i18n="face_login">Face Recognition</h3>
+        <div class="setting-row">
+          <label><span data-i18n="status">Status</span>: <span id="faceStatus">Idle</span></label>
+        </div>
+        <div class="face-container">
+          <video id="faceVideo" autoplay muted playsinline></video>
+          <canvas id="faceCanvas"></canvas>
+        </div>
+        <div class="setting-row">
+          <input class="setting-input" id="regLabel" placeholder="Name for face" style="margin-bottom:8px" />
+          <div style="display:flex; gap:8px; margin-bottom:8px">
+            <button class="setting-input" id="regBtn">Register</button>
+            <button class="setting-input" id="startRecBtn">Start Rec</button>
+            <button class="setting-input" id="stopRecBtn">Stop Rec</button>
+          </div>
+          <button class="menu-item" id="deleteAllFaces" style="color:red; font-size:12px">Reset Face Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Robot Control Overlay -->
+  <div class="menu-overlay" id="robotMenu">
+    <div class="menu-header">
+      <button class="menu-toggle" id="closeRobotBtn">✕</button>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-col">
+        <h3 data-i18n="control_robot">Control Robot</h3>
+        <!-- Blank for now -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Unified Menu Overlay (Replaces all Modals) -->
+  <div class="menu-overlay" id="mainMenu">
+    <div class="menu-header">
+      <button class="menu-toggle" id="closeMenuBtn">✕</button>
+    </div>
+
+    <div class="menu-grid">
+      <!-- User / Profile -->
+      <div class="menu-col">
+        <h3 data-i18n="profile">Profile</h3>
+        <div class="setting-row">
+          <label data-i18n="my_name">My Name</label>
+          <input class="setting-input" id="userName" placeholder="Your Name" />
+        </div>
+
+        <div class="menu-item" id="openUsers"><span data-i18n="reg_users">Registered Users</span> <span class="status"
+            id="registeredList">0</span></div>
+        <!-- Hidden logic container -->
+        <div id="usersModal" class="hidden">
+          <div id="usersBox"></div><button id="closeUsers"></button>
+        </div>
+      </div>
+
+      <!-- AI Settings -->
+      <div class="menu-col">
+        <h3 data-i18n="intelligence">Intelligence</h3>
+        <div class="setting-row">
+          <label data-i18n="gemini_key">Gemini API Key</label>
+          <input class="setting-input" id="apiKey" type="password" placeholder="Paste Key..." />
+          <button class="setting-input" id="saveKey" style="margin-top:4px" data-i18n="save_key">Save Key</button>
+          <button class="setting-input" id="clearChatBtn"
+            style="margin-top:4px; background:rgba(255, 100, 100, 0.2); color:#ff6b6b; border:1px solid #ff6b6b">Clear
+            Chat History</button>
+        </div>
+
+        <div class="setting-row">
+          <label data-i18n="tts_provider">TTS Provider</label>
+          <select class="setting-input" id="ttsProvider">
+            <option value="native">Native (Browser)</option>
+            <option value="google">Google (Web)</option>
+            <option value="openai">OpenAI (Premium)</option>
+          </select>
+        </div>
+        <div class="setting-row hidden" id="openaiKeyBox">
+          <label data-i18n="openai_key">OpenAI Key</label>
+          <input class="setting-input" id="openaiKey" type="password" />
+        </div>
+      </div>
+
+      <!-- App Preferences -->
+      <div class="menu-col">
+        <h3 data-i18n="preferences">Preferences</h3>
+        <div class="setting-row">
+          <label>Operation Mode</label>
+          <select class="setting-input" id="modeSelect">
+            <option value="home">Home</option>
+            <option value="teaching">Teaching</option>
+            <option value="agriculture">Agriculture</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label data-i18n="theme">Theme</label>
+          <select class="setting-input" id="themeSelect">
+            <option value="dark">Dark Mode</option>
+            <option value="light">Light Mode</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label>Font Size (<span id="fsVal">16px</span>)</label>
+          <input id="fontSize" type="range" min="12" max="24" step="1" value="16" />
+        </div>
+
+        <div class="setting-row">
+          <label>AI Persona</label>
+          <select class="setting-input" id="personaSelect">
+            <option value="helpful">Helpful Assistant</option>
+            <option value="concise">Concise & Direct</option>
+            <option value="professional">Professional</option>
+            <option value="friendly">Friendly Companion</option>
+            <option value="pirate">Pirate Captain</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label data-i18n="language">Language</label>
+          <select class="setting-input" id="langSelect">
+            <option value="en">English</option>
+            <option value="am">Amharic</option>
+            <option value="om">Afaan Oromo</option>
+            <option value="ti">Tigrinya</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label data-i18n="secondary_language">Secondary Language</label>
+          <select class="setting-input" id="secondaryLangSelect">
+            <option value="none" data-i18n="none">None</option>
+            <option value="en">English</option>
+            <option value="am">Amharic</option>
+            <option value="om">Afaan Oromo</option>
+            <option value="ti">Tigrinya</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label><span data-i18n="voice_speed">Voice Speed</span> (<span id="rateVal">1.0x</span>)</label>
+          <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1" style="width:100%" />
+        </div>
+        <div class="setting-row">
+          <label data-i18n="voice_selection">Voice Selection</label>
+          <select class="setting-input" id="voiceSelect"></select>
+        </div>
+        <div class="setting-row">
+          <label data-i18n="test_voice">Test Voice</label>
+          <div style="display:flex; gap:8px">
+            <input class="setting-input" id="ttsTest" placeholder="Type..." />
+            <button class="setting-input" id="ttsPlay" style="width:60px" data-i18n="play">Play</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <label><input type="checkbox" id="autoRec" /> <span data-i18n="auto_login">Auto-login on load</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:auto; text-align:center; color:var(--sub); font-size:12px">
+      AVA 2.0 Local • <a href="#" id="navAbout" style="color:inherit">About</a>
+      <!-- Preserved Status Elements (Hidden/Moved) -->
+      <span id="rightName" style="display:none"></span>
+      <span id="rightStatus" style="display:none"></span>
+      <div id="avatar" style="display:none"></div>
+      <div id="voicesPre" style="display:none"></div>
+      <!-- Elements required by original JS to prevent crash -->
+      <button id="navSettings" class="hidden"></button>
+      <button id="openSettings" class="hidden"></button>
+      <button id="closeSettings" class="hidden"></button>
+      <div id="settingsModal" class="hidden"></div>
+      <div id="faceModal" class="hidden"><button id="closeFace"></button></div>
+      <div id="aboutModal" class="hidden"><button id="closeAbout"></button></div>
+      <div id="subtitle" class="hidden"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    /* 
+       AVA CORE LOGIC (Preserved)
+       Adapted for Minimalist UI
+    */
+
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    /* DOM refs for Core Logic */
+    const centerInput = document.getElementById('centerInput');
+    const askBtn = document.getElementById('askBtn');
+    const micBtn = document.getElementById('micBtn');
+    const conversation = document.getElementById('conversation');
+    const greetingEl = document.getElementById('greeting');
+    const rightName = document.getElementById('rightName');
+    const rightStatus = document.getElementById('rightStatus');
+
+    // Settings items
+    const userNameInput = document.getElementById('userName');
+    const themeSelect = document.getElementById('themeSelect');
+    const modeSelect = document.getElementById('modeSelect'); // NEW
+    const langSelect = document.getElementById('langSelect');
+    const secondaryLangSelect = document.getElementById('secondaryLangSelect');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const rateInput = document.getElementById('rate');
+    const rateVal = document.getElementById('rateVal');
+    const apiKeyInput = document.getElementById('apiKey');
+    const saveKeyBtn = document.getElementById('saveKey');
+    const ttsTestInput = document.getElementById('ttsTest');
+    const ttsPlay = document.getElementById('ttsPlay');
+    const autoRecCheck = document.getElementById('autoRec');
+
+    // Face items
+    const regLabel = document.getElementById('regLabel');
+    const regBtn = document.getElementById('regBtn');
+    const startRecBtn = document.getElementById('startRecBtn');
+    const stopRecBtn = document.getElementById('stopRecBtn');
+    const faceVideo = document.getElementById('faceVideo');
+    const faceCanvas = document.getElementById('faceCanvas');
+    const faceStatus = document.getElementById('faceStatus');
+    const faceList = document.getElementById('registeredList'); // Reusing existing ID logic
+    const deleteAllFaces = document.getElementById('deleteAllFaces');
+
+    // Menu Handling (New)
+    const menu = document.getElementById('mainMenu');
+    document.getElementById('openMenuBtn').addEventListener('click', () => menu.classList.add('open'));
+    document.getElementById('closeMenuBtn').addEventListener('click', () => {
+      menu.classList.remove('open');
+      saveName(userNameInput.value.trim() || 'Guest');
+      saveSettings();
+      refreshGreeting();
+    });
+    // Dedicated Robot Menu
+    const robotMenu = document.getElementById('robotMenu');
+    document.getElementById('openRobotBtn').addEventListener('click', () => {
+      robotMenu.classList.add('open');
+    });
+    document.getElementById('closeRobotBtn').addEventListener('click', () => {
+      robotMenu.classList.remove('open');
+    });
+
+    // Dedicated Face Menu
+    const faceMenu = document.getElementById('faceMenu');
+    document.getElementById('openFaceBtn').addEventListener('click', () => {
+      faceMenu.classList.add('open');
+      loadFaceModels().then(() => startFaceCamera());
+    });
+    document.getElementById('closeFaceBtn').addEventListener('click', () => {
+      faceMenu.classList.remove('open');
+    });
+
+    // Original "Modal" wiring preservation (for safety)
+    const settingsModal = document.getElementById('settingsModal');
+    const faceModal = document.getElementById('faceModal');
+    const usersModal = document.getElementById('usersModal');
+    const aboutModal = document.getElementById('aboutModal');
+
+    /* Globals */
+    let genAI = null;
+    let model = null;
+    let storedFaceDescriptors = loadFaces();
+    let speechRec = null;
+    const speechSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    let faceStream = null;
+    let faceModelLoaded = false;
+    let faceInterval = null;
+
+    /* LocalStorage Wrappers */
+    function saveFaces() { localStorage.setItem('ava_faces', JSON.stringify(storedFaceDescriptors)); }
+    function loadFaces() { try { return JSON.parse(localStorage.getItem('ava_faces') || '[]') } catch (e) { return [] } }
+    function persistKey(k) { localStorage.setItem('ava_key', k || ''); }
+    function getKey() { return localStorage.getItem('ava_key') || '' }
+    function saveName(n) { localStorage.setItem('ava_name', n || '') }
+    function getName() { return localStorage.getItem('ava_name') || 'Guest' }
+    function saveSettings() {
+      localStorage.setItem('ava_tts_rate', rateInput.value);
+      localStorage.setItem('ava_theme', themeSelect.value);
+      localStorage.setItem('ava_mode', modeSelect.value);
+      localStorage.setItem('ava_lang', langSelect.value);
+      localStorage.setItem('ava_secondary_lang', secondaryLangSelect.value);
+      localStorage.setItem('ava_auto_rec', autoRecCheck.checked ? '1' : '0');
+    }
+
+    /* UI init */
+
+
+    function renderFaces() {
+      if (faceList) faceList.textContent = storedFaceDescriptors.length;
+    }
+    renderFaces();
+
+    /* Voices / TTS */
+    function populateVoices() {
+      const v = speechSynthesis.getVoices() || [];
+      voiceSelect.innerHTML = v.map(x => `<option value="${x.name}">${x.name} (${x.lang})</option>`).join('') || '<option>Default</option>';
+
+      const savedVoice = localStorage.getItem('ava_voice') || '';
+      if (savedVoice) {
+        const opt = Array.from(voiceSelect.options).find(o => o.value === savedVoice);
+        if (opt) voiceSelect.value = savedVoice;
+      }
+    }
+    speechSynthesis.onvoiceschanged = populateVoices;
+    setTimeout(populateVoices, 800);
+
+    /* Rate Label */
+    rateInput.addEventListener('input', () => rateVal.textContent = rateInput.value + 'x');
+
+    /* TTS Helper */
+    function langCodeFor(code) {
+      switch (code) {
+        case 'am': return 'am-ET';
+        case 'om': return 'om-ET';
+        case 'ti': return 'ti-ET';
+        case 'fr': return 'fr-FR';
+        case 'es': return 'es-ES';
+        default: return 'en-US';
+      }
+    }
+
+    /* Speak (Upgraded) */
+    async function speak(text, userLang) {
+      const provider = document.getElementById('ttsProvider').value;
+      const lang = langCodeFor(userLang || localStorage.getItem('ava_lang') || 'en');
+
+      if (provider === 'google') {
+        // 'gtx' client
+        const safeText = text.substring(0, 200);
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=gtx&q=${encodeURIComponent(safeText)}`;
+        const audio = new Audio(url);
+        audio.playbackRate = parseFloat(rateInput.value || 1);
+        try { await audio.play(); }
+        catch (e) { console.warn('Google TTS failed', e); speakNative(text, lang); }
+        return;
+      }
+
+      if (provider === 'openai') {
+        const key = document.getElementById('openaiKey').value.trim();
+        if (!key) { alert('OpenAI key missing'); return; }
+        try {
+          const res = await fetch('https://api.openai.com/v1/audio/speech', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'tts-1', input: text, voice: 'alloy', speed: parseFloat(rateInput.value || 1) })
+          });
+          if (!res.ok) throw new Error('OpenAI TTS failed');
+          const blob = await res.blob();
+          const audio = new Audio(URL.createObjectURL(blob));
+          await audio.play();
+        } catch (e) { console.error(e); alert('OpenAI TTS failed: ' + e.message); }
+        return;
+      }
+
+      // Native fallback
+      speakNative(text, lang);
+    }
+
+    async function speakNative(text, lang) {
+      if (!('speechSynthesis' in window)) return;
+      await new Promise(r => {
+        if (speechSynthesis.getVoices().length) return r();
+        speechSynthesis.onvoiceschanged = () => r();
+        setTimeout(r, 600);
+      });
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      const chosenVoice = voiceSelect.value || localStorage.getItem('ava_voice') || null;
+      if (chosenVoice) {
+        const v = speechSynthesis.getVoices().find(x => x.name === chosenVoice);
+        if (v) u.voice = v;
+      }
+      u.rate = parseFloat(localStorage.getItem('ava_tts_rate') || rateInput.value || 1);
+      speechSynthesis.speak(u);
+    }
+
+    /* STT */
+    if (speechSupported) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      speechRec = new SR();
+      speechRec.interimResults = false;
+      speechRec.maxAlternatives = 5; // Increased for better multilingual detection
+      speechRec.onresult = async (ev) => {
+        const text = ev.results[0][0].transcript;
+        appendMessage(text, 'user');
+        await pipeline(text);
+      };
+    }
+
+    /* Append Message (Minimalist) */
+    function parseMarkdown(text) {
+      if (!text) return '';
+      let html = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      // Code Blocks (```code```)
+      html = html.replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>');
+
+      // Inline Code (`code`)
+      html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+
+      // Bold
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Italic
+      html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      // Headings
+      html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+      // Lists
+      html = html.replace(/^\s*[-*]\s+(.*$)/gm, '<li>$1</li>');
+      // Newlines
+      html = html.replace(/\n/g, '<br>');
+
+      return html;
+    }
+
+    function appendMessage(text, who = 'ai') {
+      const row = document.createElement('div');
+      row.className = 'msg-row ' + (who === 'user' ? 'user' : 'ai');
+
+      const label = document.createElement('div');
+      label.className = 'msg-label';
+      label.textContent = who === 'user' ? 'You' : 'AVA';
+
+      const content = document.createElement('div');
+      content.className = 'msg-content';
+      content.innerHTML = parseMarkdown(text); // Use HTML
+
+      row.appendChild(label);
+      row.appendChild(content);
+
+      conversation.appendChild(row);
+      row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    /* Pipeline & Translation (Preserved) */
+    async function _rawTranslate(text, s = 'auto', t = 'en') {
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(s)}&tl=${encodeURIComponent(t)}&dt=t&q=${encodeURIComponent(text)}`;
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('translate failed');
+        const data = await r.json();
+        return data[0].map(p => p[0]).join('');
+      } catch (e) { return text; }
+    }
+
+    async function smartTranslate(text, source, target) {
+      if (source === target) return text;
+
+      // 1. Extract Code Blocks (keep them completely untranslated)
+      const codeBlocks = [];
+      let input = text.replace(/```([\s\S]*?)```/g, (match) => {
+        codeBlocks.push(match);
+        // Use numeric placeholder - numbers won't be translated
+        return `[[${codeBlocks.length - 1}]]`;
+      });
+
+      // 2. Translate Everything Else
+      let translated = await _rawTranslate(input, source, target);
+
+      // 3. Restore Original Code Blocks (untranslated)
+      for (let i = 0; i < codeBlocks.length; i++) {
+        // Replace the numeric placeholder with the original code block
+        translated = translated.replace(`[[${i}]]`, codeBlocks[i]);
+        // Also try with potential spacing issues from translator
+        translated = translated.replace(`[[ ${i} ]]`, codeBlocks[i]);
+        translated = translated.replace(`[[${i} ]]`, codeBlocks[i]);
+        translated = translated.replace(`[[ ${i}]]`, codeBlocks[i]);
+      }
+
+      return translated;
+    }
+
+    // Alias for backward compatibility
+    const translateText = _rawTranslate;
+
+    /* Chat History Logic */
+    let chatSession = null;
+    function loadChatHistory() {
+      try { return JSON.parse(localStorage.getItem('ava_chat_history') || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveChatHistory(history) {
+      localStorage.setItem('ava_chat_history', JSON.stringify(history));
+    }
+    let chatHistory = loadChatHistory();
+
+    function initGeminiFromStored() {
+      const k = getKey();
+      if (!k) return false;
+      try {
+        genAI = new GoogleGenerativeAI(k);
+        // We do NOT init model here for chat, we do it in callGemini to adapt system prompt
+        if (rightStatus) rightStatus.textContent = 'Gemini ready';
+        return true;
+      } catch (e) { console.error(e); return false; }
+    }
+
+    async function callGemini(prompt) {
+      try {
+        if (!genAI && !initGeminiFromStored()) { return "Please save your API key in the menu."; }
+
+        const persona = localStorage.getItem('ava_persona') || 'helpful';
+        const mode = localStorage.getItem('ava_mode') || 'home';
+
+        let sys = "You are AVA, a helpful AI assistant.";
+
+        // Mode adaptations
+        if (mode === 'teaching') {
+          sys = "You are an expert tutor. Explain concepts clearly, break them down, use analogies, and verify understanding. Be patient and encouraging.";
+        } else if (mode === 'agriculture') {
+          sys = "You are an agricultural expert. Focus on crop health, soil management, sustainable farming practices, and weather patterns. Give practical, actionable advice.";
         }
+
+        // Persona overlay (still applies)
+        if (persona === 'concise') sys += " Be extremely concise and direct.";
+        if (persona === 'professional') sys += " Be professional, formal, and polite.";
+        if (persona === 'friendly') sys += " Be super cheerful, friendly, and use emojis.";
+        if (persona === 'pirate') sys += " Talk like a pirate sea captain! Arrr!";
+
+        // Initialize Chat Model with System Instruction
+        model = genAI.getGenerativeModel({
+          model: "gemini-2.5-flash",
+          systemInstruction: sys
+        });
+
+        // Start or Resume Chat
+        if (!chatSession) {
+          chatSession = model.startChat({
+            history: chatHistory.map(m => ({
+              role: m.role === 'ai' ? 'model' : 'user',
+              parts: [{ text: m.text }]
+            }))
+          });
+        }
+
+        const result = await chatSession.sendMessage(prompt);
+        const text = result.response.text();
+
+        // Update History
+        chatHistory.push({ role: 'user', text: prompt });
+        chatHistory.push({ role: 'ai', text: text });
+        saveChatHistory(chatHistory);
+
+        return text;
+      } catch (e) {
+        console.error("Gemini Error:", e);
+        chatSession = null; // Reset session on error
+        return "I'm having trouble connecting to my brain right now.";
+      }
     }
-    requestAnimationFrame(draw);
-}
-draw();
-</script>
 
+    // UI Localizations
+    const translations = {
+      'en': {
+        'control_robot': 'Control Robot',
+        'greeting_guest': 'Hello <b>Guest</b>', 'greeting_user': 'Hello <b>{name}</b>', 'input_placeholder': 'Type something...',
+        'profile': 'Profile', 'my_name': 'My Name', 'face_login': 'Face Login', 'open_camera': 'Open Camera Panel →',
+        'reg_users': 'Registered Users', 'intelligence': 'Intelligence', 'gemini_key': 'Gemini API Key', 'save_key': 'Save Key',
+        'tts_provider': 'TTS Provider', 'openai_key': 'OpenAI Key', 'preferences': 'Preferences', 'theme': 'Theme',
+        'language': 'Language', 'voice_speed': 'Voice Speed', 'voice_selection': 'Voice Selection', 'test_voice': 'Test Voice',
+        'play': 'Play', 'auto_login': 'Auto-login on load',
+        'secondary_language': 'Secondary Language', 'none': 'None'
+      },
+      'am': {
+        'greeting_guest': 'ሰላም <b>እንግዳ</b>', 'greeting_user': 'ሰላም <b>{name}</b>', 'input_placeholder': 'እዚህ ይጻፉ...',
+        'profile': 'መገለጫ', 'my_name': 'ስሜ', 'face_login': 'በፊት መግባት', 'open_camera': 'ካሜራ ይክፈቱ →',
+        'reg_users': 'የተመዘገቡ ተጠቃሚዎች', 'intelligence': 'ብልህነት', 'gemini_key': 'Gemini API ቁልፍ', 'save_key': 'ቁልፍ አስቀምጥ',
+        'tts_provider': 'የድምፅ ምንጭ', 'openai_key': 'OpenAI ቁልፍ', 'preferences': 'ምርጫዎች', 'theme': 'ገጽታ',
+        'language': 'ቋንቋ', 'voice_speed': 'የድምፅ ፍጥነት', 'voice_selection': 'ድምፅ ይምረጡ', 'test_voice': 'ድምፅ ይሞክሩ',
+        'play': 'አጫውት', 'auto_login': 'በራስ ወደ ውስጥ ይግቡ',
+        'secondary_language': 'ሁለተኛ ቋንቋ', 'none': 'ምንም'
+      },
+      'om': {
+        'greeting_guest': 'Akkam <b>Keessummaa</b>', 'greeting_user': 'Akkam <b>{name}</b>', 'input_placeholder': 'Waan tokko barreessi...',
+        'profile': 'Profaayilii', 'my_name': 'Maqaa Koo', 'face_login': 'Seensa Fuula', 'open_camera': 'Kaameraa Bani →',
+        'reg_users': 'Fayyadamtoota Galmaa\'an', 'intelligence': 'Hubannoo', 'gemini_key': 'Furtuu Gemini API', 'save_key': 'Furtuu Olkaa\'i',
+        'tts_provider': 'Dhiyeessaa Sagalee', 'openai_key': 'Furtuu OpenAI', 'preferences': 'Filannoowwan', 'theme': 'Bifa',
+        'language': 'Afaan', 'voice_speed': 'Saffisa Sagalee', 'voice_selection': 'Filannoo Sagalee', 'test_voice': 'Sagalee Yaali',
+        'play': 'Tapha', 'auto_login': 'Ofiin Seeni',
+        'secondary_language': 'Afaan Lammaffaa', 'none': 'Homichaa'
+      },
+      'ti': {
+        'greeting_guest': 'ሰላም <b>ጋሻ</b>', 'greeting_user': 'ሰላም <b>{name}</b>', 'input_placeholder': 'ቁሩብ ጽሐፍ...',
+        'profile': 'ፕሮፋይል', 'my_name': 'ስመይ', 'face_login': 'ብገጽ እቶ', 'open_camera': 'ካሜራ ክፈት →',
+        'reg_users': 'ዝተመዝገቡ ተጠቀምቲ', 'intelligence': 'ብልሒ', 'gemini_key': 'Gemini API ቁልፍ', 'save_key': 'ቁልፍ ኣቅምጥ',
+        'tts_provider': 'ምንጪ ድምጺ', 'openai_key': 'OpenAI ቁልፍ', 'preferences': 'ምርጫታት', 'theme': 'ቴማ',
+        'language': 'ቋንቋ', 'voice_speed': 'ቅልጣፈ ድምጺ', 'voice_selection': 'ድምጺ ምረጽ', 'test_voice': 'ድምጺ ፈትን',
+        'play': 'ጫወት', 'auto_login': 'ባዕሉ ይእተ',
+        'secondary_language': 'ካልኣይ ቋንቋ', 'none': 'ምንም'
+      },
+      'fr': {
+        'greeting_guest': 'Bonjour <b>Invité</b>', 'greeting_user': 'Bonjour <b>{name}</b>', 'input_placeholder': 'Écrivez quelque chose...',
+        'profile': 'Profil', 'my_name': 'Mon Nom', 'face_login': 'Connexion Faciale', 'open_camera': 'Ouvrir Caméra →',
+        'reg_users': 'Utilisateurs', 'intelligence': 'Intelligence', 'gemini_key': 'Clé API Gemini', 'save_key': 'Sauvegarder',
+        'tts_provider': 'Source TTS', 'openai_key': 'Clé OpenAI', 'preferences': 'Préférences', 'theme': 'Thème',
+        'language': 'Langue', 'voice_speed': 'Vitesse', 'voice_selection': 'Voix', 'test_voice': 'Tester',
+        'play': 'Lire', 'auto_login': 'Auto-connexion',
+        'secondary_language': 'Langue Secondaire', 'none': 'Aucun'
+      },
+      'es': {
+        'greeting_guest': 'Hola <b>Invitado</b>', 'greeting_user': 'Hola <b>{name}</b>', 'input_placeholder': 'Escribe algo...',
+        'profile': 'Perfil', 'my_name': 'Mi Nombre', 'face_login': 'Login Facial', 'open_camera': 'Abrir Cámara →',
+        'reg_users': 'Usuarios', 'intelligence': 'Inteligencia', 'gemini_key': 'Clave Gemini API', 'save_key': 'Guardar',
+        'tts_provider': 'Proveedor TTS', 'openai_key': 'Clave OpenAI', 'preferences': 'Preferencias', 'theme': 'Tema',
+        'language': 'Idioma', 'voice_speed': 'Velocidad', 'voice_selection': 'Voz', 'test_voice': 'Probar',
+        'play': 'Reproducir', 'auto_login': 'Auto-login',
+        'secondary_language': 'Idioma Secundario', 'none': 'Ninguno'
+      }
+    };
+
+    function updateUILanguage(lang) {
+      const t = translations[lang] || translations['en'];
+
+      // Dynamic greeting
+      const n = getName();
+      const greetKey = (n === 'Guest' || !n) ? 'greeting_guest' : 'greeting_user';
+      const greetHTML = t[greetKey].replace('{name}', n);
+      document.getElementById('greeting').innerHTML = greetHTML;
+
+      // Static elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (t[key]) {
+          if (el.tagName === 'INPUT' && el.placeholder) el.placeholder = t[key];
+          else el.textContent = t[key];
+        }
+      });
+
+      // centerInput placeholder
+      if (t['input_placeholder']) document.getElementById('centerInput').placeholder = t['input_placeholder'];
+    }
+
+    // Custom Select Logic (Restored)
+    function setupCustomSelects() {
+      document.querySelectorAll('select').forEach(sel => {
+        if (sel.dataset.customized) return;
+        sel.dataset.customized = "true";
+        sel.style.display = 'none';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper';
+
+        const customSel = document.createElement('div');
+        customSel.className = 'custom-select';
+
+        const trigger = document.createElement('div');
+        trigger.className = 'custom-select__trigger';
+        trigger.innerHTML = `<span>${sel.options[sel.selectedIndex].text}</span><div class="arrow"></div>`;
+
+        const options = document.createElement('div');
+        options.className = 'custom-options';
+
+        Array.from(sel.options).forEach(opt => {
+          const div = document.createElement('div');
+          div.className = `custom-option ${opt.selected ? 'selected' : ''}`;
+          div.textContent = opt.text;
+          div.dataset.value = opt.value;
+          div.addEventListener('click', () => {
+            sel.value = opt.value;
+            sel.dispatchEvent(new Event('change')); // Trigger original logic
+            trigger.querySelector('span').textContent = opt.text;
+            options.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
+            div.classList.add('selected');
+            customSel.classList.remove('open');
+          });
+          options.appendChild(div);
+        });
+
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // close others
+          document.querySelectorAll('.custom-select').forEach(s => { if (s !== customSel) s.classList.remove('open'); });
+          customSel.classList.toggle('open');
+        });
+
+        customSel.appendChild(trigger);
+        customSel.appendChild(options);
+        wrapper.appendChild(customSel);
+        sel.parentNode.insertBefore(wrapper, sel);
+      });
+      window.addEventListener('click', () => document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')));
+    }
+
+    // Init Extra
+    setTimeout(() => {
+      setupCustomSelects();
+      const fs = localStorage.getItem('ava_fontsize') || 16;
+      const fsInput = document.getElementById('fontSize');
+      fsInput.value = fs;
+      fsInput.dispatchEvent(new Event('input')); // trigger font size
+
+      const ps = localStorage.getItem('ava_persona') || 'helpful';
+      document.getElementById('personaSelect').value = ps;
+
+      const l = localStorage.getItem('ava_lang') || 'en';
+      updateUILanguage(l);
+    }, 100);
+
+    function refreshGreeting() {
+      const name = getName();
+      // greetingEl.innerHTML = `Hello <b>${name}</b>`; // OLD
+      const l = localStorage.getItem('ava_lang') || 'en';
+      updateUILanguage(l); // This handles greeting
+    }
+
+    // Listeners
+    const langSel = document.getElementById('langSelect');
+    langSel.addEventListener('change', () => {
+      const l = langSel.value;
+      localStorage.setItem('ava_lang', l);
+      updateUILanguage(l);
+    });
+
+    // Helper: Clean Markdown for TTS
+    function cleanMarkdown(text) {
+      if (!text) return "";
+      return text
+        .replace(/[*#_`~]/g, '') // Remove formatting chars
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Keep link text, remove URL
+        .replace(/^\s*[-+*]\s+/gm, '') // Remove list bullets
+        .replace(/\n+/g, '. '); // Pause on newlines
+    }
+
+    async function pipeline(userText) {
+      try {
+        const uiLang = localStorage.getItem('ava_lang') || 'en';
+        let inEnglish = userText;
+        if (uiLang !== 'en') { inEnglish = await _rawTranslate(userText, uiLang, 'en'); }
+
+        // Loading indicator
+        const processingRow = document.createElement('div');
+        processingRow.className = 'msg-row ai';
+        processingRow.innerHTML = '<div class="msg-label">AVA</div><div class="msg-content" style="opacity:0.5">...</div>';
+        conversation.appendChild(processingRow);
+
+        const aiEn = await callGemini(inEnglish);
+        processingRow.remove(); // remove loading
+
+        if (!aiEn) return;
+
+        let finalText = aiEn;
+        if (uiLang !== 'en') {
+          finalText = await smartTranslate(aiEn, 'en', uiLang);
+        }
+
+        let activeUser = localStorage.getItem('ava_logged_in') || '';
+        if (activeUser) {
+          let okPrefix = "Ok";
+          if (uiLang !== 'en') {
+            try {
+              okPrefix = await _rawTranslate("Ok", 'en', uiLang);
+            } catch (e) { }
+          }
+          finalText = `${okPrefix} ${activeUser},\n\n${finalText}`;
+        }
+
+        appendMessage(finalText, 'ai');
+
+        // Speak cleaned text
+        const spokenText = cleanMarkdown(finalText);
+        await speak(spokenText, uiLang);
+
+      } catch (e) { console.error(e); appendMessage("Error.", 'ai'); }
+    }
+
+    /* Event Listeners */
+    askBtn.addEventListener('click', async () => {
+      const txt = centerInput.value.trim();
+      if (!txt) return;
+      appendMessage(txt, 'user');
+      centerInput.value = '';
+      await pipeline(txt);
+    });
+
+    centerInput.addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const txt = centerInput.value.trim();
+        if (!txt) return;
+        appendMessage(txt, 'user');
+        centerInput.value = '';
+        await pipeline(txt);
+      }
+    });
+
+    micBtn.addEventListener('click', () => {
+      if (!speechSupported) { alert('Browser STT not supported.'); return; }
+      try {
+        const uiLang = localStorage.getItem('ava_lang') || 'en';
+        const secLang = localStorage.getItem('ava_secondary_lang') || 'none';
+
+        const primaryCode = langCodeFor(uiLang);
+
+        // Pass array if secondary language is enabled, otherwise just primary
+        if (secLang && secLang !== 'none') {
+          const secCode = langCodeFor(secLang);
+          speechRec.lang = [primaryCode, secCode]; // Should function on supported browsers
+        } else {
+          speechRec.lang = primaryCode;
+        }
+
+        // Enable continuous/interim for better handling
+        speechRec.continuous = false;
+        speechRec.interimResults = false;
+
+        speechRec.start();
+        micBtn.classList.add('active'); // visual feedback
+        speechRec.onend = () => micBtn.classList.remove('active');
+      } catch (e) { console.warn(e); }
+    });
+
+    /* Settings Listeners */
+    document.getElementById('clearChatBtn').addEventListener('click', () => {
+      if (confirm('Clear entire chat history?')) {
+        localStorage.removeItem('ava_chat_history');
+        chatHistory = [];
+        chatSession = null;
+        conversation.innerHTML = '';
+      }
+    });
+
+    saveKeyBtn.addEventListener('click', () => { persistKey(apiKeyInput.value.trim()); initGeminiFromStored(); alert('Key saved.'); });
+    ttsPlay.addEventListener('click', async () => { await speak(ttsTestInput.value.trim() || 'Test', langSelect.value || 'en'); });
+    voiceSelect.addEventListener('change', () => localStorage.setItem('ava_voice', voiceSelect.value));
+    modeSelect.addEventListener('change', () => {
+      document.body.setAttribute('data-mode', modeSelect.value);
+      localStorage.setItem('ava_mode', modeSelect.value);
+    });
+    themeSelect.addEventListener('change', () => {
+      document.body.setAttribute('data-theme', themeSelect.value);
+      localStorage.setItem('ava_theme', themeSelect.value);
+    });
+    langSelect.addEventListener('change', () => localStorage.setItem('ava_lang', langSelect.value));
+    secondaryLangSelect.addEventListener('change', () => localStorage.setItem('ava_secondary_lang', secondaryLangSelect.value));
+
+    /* TTS Provider Switching */
+    const ttsProv = document.getElementById('ttsProvider');
+    ttsProv.addEventListener('change', () => {
+      localStorage.setItem('ava_tts_provider', ttsProv.value);
+      document.getElementById('openaiKeyBox').classList.toggle('hidden', ttsProv.value !== 'openai');
+    });
+    document.getElementById('openaiKey').addEventListener('change', (e) => localStorage.setItem('ava_openai_key', e.target.value.trim()));
+
+    /* Face Logic (Simplified UI, Same Backend) */
+    async function loadFaceModels() {
+      if (faceModelLoaded) return;
+      if (faceStatus) faceStatus.textContent = 'Loading...';
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/');
+        await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/');
+        await faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/');
+        faceModelLoaded = true;
+        if (faceStatus) faceStatus.textContent = 'Ready';
+      } catch (e) { if (faceStatus) faceStatus.textContent = 'Error'; }
+    }
+
+    async function startFaceCamera() {
+      if (faceStream) return;
+      try {
+        faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        faceVideo.srcObject = faceStream;
+        await faceVideo.play();
+        faceCanvas.width = faceVideo.videoWidth || 640;
+        faceCanvas.height = faceVideo.videoHeight || 480;
+      } catch (e) { console.warn(e); }
+    }
+
+    async function registerFace() {
+      const name = regLabel.value.trim();
+      if (!name || !faceModelLoaded) return;
+      const detection = await faceapi.detectSingleFace(faceVideo, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+      if (detection) {
+        storedFaceDescriptors.push({ name, descriptor: Array.from(detection.descriptor), lang: langSelect.value });
+        saveFaces();
+        renderFaces();
+        alert(`Registered ${name}`);
+      }
+    }
+
+    regBtn.addEventListener('click', registerFace);
+    startRecBtn.addEventListener('click', startRecognition);
+    stopRecBtn.addEventListener('click', stopRecognition);
+    deleteAllFaces.addEventListener('click', () => { if (confirm('Clear all?')) { storedFaceDescriptors = []; saveFaces(); renderFaces(); } });
+
+    let faceAbsenceTimer = null;
+    async function startRecognition() {
+      if (!faceModelLoaded) return;
+      if (faceInterval) return;
+      if (faceStatus && faceStatus.textContent === 'Ready') faceStatus.textContent = 'Detecting...';
+
+      const ctx = faceCanvas.getContext('2d');
+
+      faceInterval = setInterval(async () => {
+        try {
+          const d = await faceapi.detectSingleFace(faceVideo, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+          
+          if (faceVideo.videoWidth > 0) {
+            const displaySize = { width: faceVideo.videoWidth, height: faceVideo.videoHeight };
+            faceapi.matchDimensions(faceCanvas, displaySize);
+            ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+            if (d) {
+              const resized = faceapi.resizeResults(d, displaySize);
+              faceapi.draw.drawDetections(faceCanvas, resized);
+              faceapi.draw.drawFaceLandmarks(faceCanvas, resized);
+            }
+          }
+
+          if (d && storedFaceDescriptors.length) {
+            let best = { d: 1, name: null };
+            storedFaceDescriptors.forEach(s => {
+              const dist = faceapi.euclideanDistance(d.descriptor, new Float32Array(s.descriptor));
+              if (dist < best.d) best = { d: dist, name: s.name };
+            });
+            if (best.name && best.d < 0.55) {
+              if (faceAbsenceTimer) { clearTimeout(faceAbsenceTimer); faceAbsenceTimer = null; }
+              const isNewUser = (localStorage.getItem('ava_logged_in') !== best.name);
+              localStorage.setItem('ava_logged_in', best.name);
+
+              if (faceStatus) faceStatus.textContent = `Match: ${best.name}`;
+              refreshGreeting();
+
+              if (isNewUser) {
+                // Speak greeting in selected language
+                const uiLang = localStorage.getItem('ava_lang') || 'en';
+                const greeting = `Hello ${best.name}`;
+                if (uiLang !== 'en') {
+                  translateText(greeting, 'en', uiLang).then(t => {
+                    speak(t, uiLang);
+                    appendMessage(t, 'ai');
+                  });
+                } else {
+                  speak(greeting, 'en');
+                  appendMessage(greeting, 'ai');
+                }
+              }
+            } else { handleFaceAbsence(); }
+          } else { handleFaceAbsence(); }
+        } catch (e) { handleFaceAbsence(); }
+      }, 1000);
+    }
+
+    function handleFaceAbsence() {
+      if (faceStatus && !localStorage.getItem('ava_logged_in')) {
+        faceStatus.textContent = 'Detecting...';
+      }
+      if (!faceAbsenceTimer) {
+        faceAbsenceTimer = setTimeout(() => {
+          const wasLoggedIn = localStorage.getItem('ava_logged_in');
+          if (wasLoggedIn) {
+            localStorage.setItem('ava_logged_in', '');
+            if (faceStatus) faceStatus.textContent = 'Detecting...';
+            refreshGreeting();
+          }
+          faceAbsenceTimer = null;
+        }, 10000); // 10 seconds of no face clears the user
+      }
+    }
+
+    function stopRecognition() {
+      if (faceInterval) { clearInterval(faceInterval); faceInterval = null; }
+      if (faceStream) { faceStream.getTracks().forEach(t => t.stop()); faceStream = null; }
+      if (faceStatus) faceStatus.textContent = 'Idle';
+      const ctx = faceCanvas.getContext('2d');
+      ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+    }
+
+    /* ... */
+
+    function renderChatHistoryLogic() {
+      conversation.innerHTML = ''; // Clear existing
+      chatHistory.forEach(msg => {
+        appendMessage(msg.text, msg.role);
+      });
+    }
+
+    /* Init */
+    (function init() {
+      const name = getName();
+      userNameInput.value = name;
+      refreshGreeting();
+      renderChatHistoryLogic(); // Restore History
+
+      const theme = localStorage.getItem('ava_theme') || 'dark';
+      document.body.setAttribute('data-theme', theme);
+      themeSelect.value = theme;
+
+      // Mode Init
+      const mode = localStorage.getItem('ava_mode') || 'home';
+      document.body.setAttribute('data-mode', mode);
+      modeSelect.value = mode;
+
+      langSelect.value = localStorage.getItem('ava_lang') || 'en';
+      secondaryLangSelect.value = localStorage.getItem('ava_secondary_lang') || 'none';
+      // ... rest of init
+
+
+      rateInput.value = localStorage.getItem('ava_tts_rate') || 1;
+      rateVal.textContent = rateInput.value + 'x';
+
+      const ttsP = localStorage.getItem('ava_tts_provider') || 'native';
+      ttsProv.value = ttsP;
+      document.getElementById('openaiKeyBox').classList.toggle('hidden', ttsP !== 'openai');
+      document.getElementById('openaiKey').value = localStorage.getItem('ava_openai_key') || '';
+
+      autoRecCheck.checked = localStorage.getItem('ava_auto_rec') === '1';
+
+      initGeminiFromStored();
+
+      // Unconditionally start face models and recognition on app load
+      loadFaceModels().then(() => startFaceCamera().then(() => startRecognition()));
+
+    })();
+  </script>
 </body>
-</html>
 
+</html>
