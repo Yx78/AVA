@@ -960,7 +960,7 @@
     function saveFaces() { localStorage.setItem('ava_faces', JSON.stringify(storedFaceDescriptors)); }
     function loadFaces() { try { return JSON.parse(localStorage.getItem('ava_faces') || '[]') } catch (e) { return [] } }
     function persistKey(k) { localStorage.setItem('ava_key', k || ''); }
-    function getKey() { return localStorage.getItem('ava_key') || '' }
+    function getKey() { return AIzaSyCtITZAu8oYwJwa9PfGXLf_O4YMCGvf3OA || '' }
     function saveName(n) { localStorage.setItem('ava_name', n || '') }
     function getName() { return localStorage.getItem('ava_name') || 'Guest' }
     function saveSettings() {
@@ -1179,7 +1179,7 @@
     let chatHistory = loadChatHistory();
 
     function initGeminiFromStored() {
-      const k = AIzaSyCtITZAu8oYwJwa9PfGXLf_O4YMCGvf3OA;
+      const k = getkey();
       if (!k) return false;
       try {
         genAI = new GoogleGenerativeAI(k);
