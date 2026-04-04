@@ -1179,7 +1179,7 @@
     let chatHistory = loadChatHistory();
 
     function initGeminiFromStored() {
-      const k = getkey();
+      const k = getKey();
       if (!k) return false;
       try {
         genAI = new GoogleGenerativeAI(k);
